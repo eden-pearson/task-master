@@ -8,7 +8,7 @@ import {
   getCompletedTasks,
   getTask,
   updateTaskStatus,
-} from '../db/__tests__/tasks.ts'
+} from '../db/functions/tasks.ts'
 
 const router = express.Router()
 

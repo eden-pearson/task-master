@@ -1,9 +1,6 @@
-import { it, describe, expect, beforeEach, vi } from 'vitest'
-import connection from '../../connection'
-import * as db from '../tasks'
-
-// vi.useFakeTimers()
-// vi.setSystemTime(1694123118427)
+import { it, describe, expect, beforeEach } from 'vitest'
+import connection from '../connection.ts'
+import * as db from '../functions/tasks.ts'
 
 beforeEach(async () => {
   await connection.migrate.rollback()
