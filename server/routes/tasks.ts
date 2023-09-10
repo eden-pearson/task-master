@@ -19,7 +19,9 @@ router.get('/', async (req, res) => {
     res.json(tasks)
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: 'Sorry something went wrong on the server' })
+    res.status(500).json({
+      error: 'Uh oh! Something went wrong when getting the list of tasks',
+    })
   }
 })
 
@@ -35,7 +37,7 @@ router.get('/task/:id', async (req, res) => {
     res.json(task)
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: 'Sorry something went wrong on the server' })
+    res.status(500).json({ error: 'Uh oh! Something fetching the task' })
   }
 })
 
@@ -46,7 +48,9 @@ router.get('/incomplete', async (req, res) => {
     res.json(tasks)
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: 'Sorry something went wrong on the server' })
+    res
+      .status(500)
+      .json({ error: 'Uh oh! Something getting the list of incomplete tasks' })
   }
 })
 
@@ -57,7 +61,9 @@ router.get('/complete', async (req, res) => {
     res.json(tasks)
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: 'Sorry something went wrong on the server' })
+    res
+      .status(500)
+      .json({ error: 'Uh oh! Something getting the list of completed tasks' })
   }
 })
 
@@ -69,7 +75,10 @@ router.post('/', async (req, res) => {
     res.json(response)
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: 'Sorry something went wrong on the server' })
+    res.status(500).json({
+      error:
+        'Uh oh! Something went wrong when adding your task to the database',
+    })
   }
 })
 
@@ -86,7 +95,9 @@ router.patch('/:id', async (req, res) => {
     res.json(response)
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: 'Sorry something went wrong on the server' })
+    res
+      .status(500)
+      .json({ error: 'Uh oh! Something went wrong when updating your task' })
   }
 })
 
@@ -94,14 +105,18 @@ router.patch('/:id', async (req, res) => {
 router.patch('/:id/:status', async (req, res) => {
   try {
     const id = Number(req.params.id)
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'Task ID must be a number' })
+      return
+    }
     const status = Boolean(req.params.status)
     const response = await updateTaskStatus(id, status)
     res.json(response)
   } catch (err) {
     console.log(err)
-    res
-      .status(500)
-      .json({ message: 'Sorry something went wrong on the server' })
+    res.status(500).json({
+      error: 'Uh oh! Something went wrong when updating your task status',
+    })
   }
 })
 
@@ -117,7 +132,9 @@ router.delete('/:id', async (req, res) => {
     res.json(response)
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: 'Sorry something went wrong on the server' })
+    res
+      .status(500)
+      .json({ error: 'Uh oh! Something went wrong when deleting your task' })
   }
 })
 
