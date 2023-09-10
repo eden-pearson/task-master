@@ -2,8 +2,8 @@ import { it, describe, expect, beforeEach, vi } from 'vitest'
 import connection from '../../connection'
 import * as db from '../tasks'
 
-vi.useFakeTimers()
-vi.setSystemTime(1694123118427)
+// vi.useFakeTimers()
+// vi.setSystemTime(1694123118427)
 
 beforeEach(async () => {
   await connection.migrate.rollback()
