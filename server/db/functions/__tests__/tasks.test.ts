@@ -21,14 +21,14 @@ describe('getAllTasks', () => {
 describe('getIncompleteTasks', () => {
   it('gets all incomplete tasks', async () => {
     const tasks = await db.getIncompleteTasks()
-    expect(tasks).toHaveLength(11)
+    expect(tasks).toHaveLength(5)
   })
 })
 
 describe('getCompletedTasks', () => {
   it('gets all completed tasks', async () => {
     const tasks = await db.getCompletedTasks()
-    expect(tasks).toHaveLength(0)
+    expect(tasks).toHaveLength(6)
   })
 })
 
