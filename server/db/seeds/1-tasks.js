@@ -28,32 +28,32 @@ export async function seed(knex) {
     {
       id: 6,
       name: 'THS01 trello ticket',
-      completed: false,
+      completed: true,
     },
     {
       id: 7,
       name: 'THS02 trello ticket',
-      completed: false,
+      completed: true,
     },
     {
       id: 8,
       name: 'THS03 trello ticket',
-      completed: false,
+      completed: true,
     },
     {
       id: 9,
       name: 'THS04 trello ticket',
-      completed: false,
+      completed: true,
     },
     {
       id: 10,
       name: 'THS05 trello ticket',
-      completed: false,
+      completed: true,
     },
     {
       id: 11,
       name: 'THS06 trello ticket',
-      completed: false,
+      completed: true,
     },
   ])
 }
