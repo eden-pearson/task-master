@@ -4,6 +4,7 @@ export function up(knex) {
     table.string('name').notNullable()
     table.boolean('completed').notNullable().defaultTo(false)
     table.timestamps(true, true)
+    table.string('user_id').references('users.id')
   })
 }
 
