@@ -5,17 +5,9 @@ export async function getAllTasks(): Promise<Task[]> {
   return db('tasks').select('*')
 }
 
-export async function getIncompleteTasks(): Promise<Task[]> {
-  return db('tasks').select('*').where({ completed: false })
-}
-
-export async function getCompletedTasks(): Promise<Task[]> {
-  return db('tasks').select('*').where({ completed: true })
-}
-
-export function getTask(id: number): Promise<Task> {
-  return db('tasks').select().where({ id }).first()
-}
+// export function getTask(id: number): Promise<Task> {
+//   return db('tasks').select().where({ id }).first()
+// }
 
 export function createTask(task: string): Promise<Task[]> {
   return db('tasks').insert({ name: task }).returning('*')

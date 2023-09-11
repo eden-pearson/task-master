@@ -11,7 +11,8 @@ export default function Nav() {
   }
 
   const handleSignIn = () => {
-    loginWithRedirect({ redirectUri: `${window.location.origin}/register` })
+    loginWithRedirect()
+    // loginWithRedirect({ redirectUri: `${window.location.origin}/register` })
   }
 
   if (user) {

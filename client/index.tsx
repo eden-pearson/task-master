@@ -16,9 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
       clientId="eczwHXmWpQ6y9wF75nDHXrECrr0FA6wu"
       redirectUri={window.location.origin}
       audience="https://taskmaster/api"
-      // cacheLocation="localstorage"
-      // useRefreshTokens
-      // maxAge={900}
     >
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />

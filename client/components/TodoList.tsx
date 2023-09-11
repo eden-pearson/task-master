@@ -1,199 +1,157 @@
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
-import {
-  deleteTask,
-  getAllTasks,
-  getCompletedTasks,
-  getIncompleteTasks,
-  updateTask,
-  updateTaskStatus,
-} from '../apis/tasks'
-import { useState } from 'react'
+import { getAllTasks, updateTask, updateTaskStatus } from '../apis/tasks'
+import { useEffect, useState } from 'react'
+import { Task, TaskObject } from '../../models/tasks'
 
 export default function TodoList() {
   const queryClient = useQueryClient()
   const [active, setActive] = useState(false)
   const [completed, setCompleted] = useState(false)
-  const [editTask, setEditTask] = useState(null)
-  const [editTaskName, setEditTaskName] = useState('')
+  const [tasks, setTasks] = useState<Task[]>([])
 
   const {
-    data: tasks,
+    data: allTasks,
     isLoading,
-    isError,
+    error,
   } = useQuery(['tasks'], () => getAllTasks())
-  const {
-    data: incompleteTasks,
-    isLoading: incompleteTasksLoading,
-    error: incompleteTasksError,
-  } = useQuery(['incompleteTasks'], () => getIncompleteTasks())
-  const {
-    data: completedTasks,
-    isLoading: completedTasksLoading,
-    error: completedTasksError,
-  } = useQuery(['completedTasks'], () => getCompletedTasks())
+
   const taskComplete = useMutation(updateTaskStatus, {
     onSuccess: () => {
-      queryClient.invalidateQueries([
-        'tasks',
-        'incompleteTasks',
-        'completedTasks',
-      ])
+      queryClient.invalidateQueries(['tasks'])
     },
   })
-  const [tasksList, setTasksList] = useState(tasks)
-  const [count, setCount] = useState(incompleteTasks?.length || 0)
-
-  const taskEdit = useMutation(updateTask, {
+  const editTask = useMutation(updateTask, {
     onSuccess: () => {
-      queryClient.invalidateQueries([
-        'tasks',
-        'incompleteTasks',
-        'completedTasks',
-      ])
+      queryClient.invalidateQueries(['tasks'])
     },
   })
 
-  const taskDeletion = useMutation(deleteTask, {
-    onSuccess: () => {
-      queryClient.invalidateQueries([
-        'tasks',
-        'incompleteTasks',
-        'completedTasks',
-      ])
-    },
-  })
+  useEffect(() => {
+    if (allTasks) {
+      setTasks(allTasks)
+    }
+  }, [allTasks])
 
-  if (isError) {
-    return <div>Error retrieving tasks</div>
-  }
-
-  if (isLoading || incompleteTasksLoading || completedTasksLoading) {
+  if (isLoading) {
     return <div>Tasks loading...</div>
   }
-  function handleChange(id, event) {
+
+  if (error instanceof Error) {
+    return <div>Error: {error.message}</div>
+  } else if (error) {
+    return <div>Unknown Error</div>
+  }
+
+  function handleStatusChange(
+    taskId: number,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
     const isChecked = event.target.checked
-    taskComplete.mutate({ id, status: isChecked })
+    console.log(taskId, isChecked)
+    taskComplete.mutate({ id: taskId, completed: isChecked })
   }
 
-  function filterAll() {
-    setActive(false)
-    setCompleted(false)
-    queryClient.invalidateQueries([
-      'tasks',
-      'incompleteTasks',
-      'completedTasks',
-    ])
+  function handleNameChange(
+    taskId: number,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const updatedTaskName = event.target.value
+    editTask.mutate({ id: taskId, name: updatedTaskName })
   }
 
-  function filterActive() {
-    setActive(true)
-    setCompleted(false)
-    setTasksList(incompleteTasks)
-    queryClient.invalidateQueries([
-      'tasks',
-      'incompleteTasks',
-      'completedTasks',
-    ])
+  function filterByAll() {
+    if (allTasks) {
+      setActive(false)
+      setCompleted(false)
+      setTasks(allTasks)
+    }
   }
 
-  function filterCompleted() {
-    setActive(false)
-    setCompleted(true)
-    setTasksList(completedTasks)
-    queryClient.invalidateQueries([
-      'tasks',
-      'incompleteTasks',
-      'completedTasks',
-    ])
+  function filterByActive() {
+    if (allTasks) {
+      setActive(true)
+      setCompleted(false)
+      setTasks(allTasks.filter((task) => task.completed === false))
+    }
   }
 
-  function handleDoubleClick(id) {
-    setEditTask(id)
+  function filterByCompleted() {
+    if (allTasks) {
+      setActive(false)
+      setCompleted(true)
+      setTasks(allTasks.filter((task) => task.completed === true))
+    }
   }
-
-  function handleEditInputChange(event) {
-    setEditTaskName(event.target.value)
-  }
-
-  function saveEditedTask(event, id) {
-    event.preventDefault()
-    taskEdit.mutate({ id, name: editTaskName })
-    setEditTask(null)
-    setCount(incompleteTasks.length)
-  }
-
-  function deleteTaskClick(id: number) {
-    taskDeletion.mutate(id)
-    setCount(incompleteTasks.length)
-  }
-
   return (
     <div>
       <input id="toggle-all" className="toggle-all" type="checkbox" />
       <label htmlFor="toggle-all">Mark all as complete</label>
       <ul className="todo-list">
-        {tasks.map((task) => {
-          return (
-            <li key={task.id} className={task.completed ? 'completed' : ''}>
-              <div className="view">
-                <input
-                  className="toggle"
-                  type="checkbox"
-                  checked={task.completed}
-                  onChange={(event) => handleChange(task.id, event)}
-                />
-                {task.id === editTask ? (
-                  <form onSubmit={(event) => saveEditedTask(event, task.id)}>
+        {allTasks
+          ? allTasks.map((task) => {
+              return (
+                <li key={task.id} className={task.completed ? 'completed' : ''}>
+                  <div className="view">
                     <input
-                      className="edit"
-                      value={editTaskName}
-                      onChange={(event) => handleEditInputChange(event)}
-                      autoFocus
-                      onBlur={(event) => saveEditedTask(event, task.id)}
+                      className="toggle"
+                      type="checkbox"
+                      checked={Boolean(task.completed)}
+                      onChange={(event) => handleStatusChange(task.id, event)}
                     />
-                  </form>
-                ) : (
-                  <label onDoubleClick={() => handleDoubleClick(task.id)}>
-                    {task.name}
-                  </label>
-                )}
-                <button
-                  onClick={() => deleteTaskClick(task.id)}
-                  className="destroy"
-                ></button>
-              </div>
-            </li>
-          )
-        })}
+                    <label>{task.name}</label>
+                    <button
+                      className={task.completed ? 'destroy' : ''}
+                    ></button>
+                  </div>
+                  <input
+                    className="edit"
+                    value={task.name}
+                    onChange={(event) => handleNameChange(task.id, event)}
+                  />
+                </li>
+              )
+            })
+          : ''}
       </ul>
       <div className="footer">
         <span className="todo-count">
-          <strong>{count}</strong> {count === 1 ? 'item' : 'items'} left
+          <strong>
+            {tasks.filter((task) => task.completed === false).length}
+          </strong>{' '}
+          items left
         </span>
-        <ul className="filters">
-          <li>
-            <button
-              onClick={filterAll}
-              className={!active && !completed ? 'selected' : ''}
-            >
-              All
-            </button>
-          </li>
-          <li>
-            <button onClick={filterActive} className={active ? 'selected' : ''}>
-              Active
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={filterCompleted}
-              className={completed ? 'selected' : ''}
-            >
-              Completed
-            </button>
-          </li>
-        </ul>
-        {completedTasks?.length > 0 ? (
+        {allTasks && allTasks.length > 1 ? (
+          <ul className="filters">
+            <li>
+              <button
+                onClick={filterByAll}
+                className={!active && !completed ? 'selected' : ''}
+              >
+                All
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={filterByActive}
+                className={active ? 'selected' : ''}
+              >
+                Active
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={filterByCompleted}
+                className={completed ? 'selected' : ''}
+              >
+                Completed
+              </button>
+            </li>
+          </ul>
+        ) : (
+          <div></div>
+        )}
+        {allTasks &&
+        allTasks?.filter((task) => task.completed === true).length > 0 ? (
           <button className="clear-completed">Clear completed</button>
         ) : (
           ''

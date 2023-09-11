@@ -10,4 +10,5 @@ export interface TaskObject {
   id: number
   status?: boolean
   name?: string
+  completed?: boolean | number
 }
