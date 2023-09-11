@@ -49,9 +49,9 @@ export default function TodoList() {
   }
 
   if (error instanceof Error) {
-    return <div>Error: {error.message}</div>
+    return <div>Something went wrong: {error.message}</div>
   } else if (error) {
-    return <div>Unknown Error</div>
+    return <div>An unknown error has occurred</div>
   }
 
   function handleStatusChange(
@@ -59,7 +59,6 @@ export default function TodoList() {
     event: React.ChangeEvent<HTMLInputElement>
   ) {
     const isChecked = event.target.checked
-    console.log(taskId, isChecked)
     taskComplete.mutate({ id: taskId, completed: isChecked })
   }
 
@@ -119,13 +118,13 @@ export default function TodoList() {
     setEditTaskId(null)
     setTaskForm('')
   }
-  console.log(tasks)
 
   return (
     <div>
       <input id="toggle-all" className="toggle-all" type="checkbox" />
       <label htmlFor="toggle-all">Mark all as complete</label>
-      <ul className="todo-list">
+      <h2 id="todo-header">Tasks</h2>
+      <ul aria-labelledby="todo-header" id="todoList" className="todo-list">
         {allTasks && tasks.length > 0 ? (
           tasks.map((task) => {
             return (

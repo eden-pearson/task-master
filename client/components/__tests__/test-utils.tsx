@@ -1,15 +1,22 @@
 import { beforeEach, expect } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import * as matchers from '@testing-library/jest-dom/matchers'
 import '@testing-library/jest-dom/vitest'
+
+import { RouterProvider, createMemoryRouter } from 'react-router-dom'
+import userEvent from '@testing-library/user-event'
+import { routes } from '../../routes.tsx'
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import App from '../App.tsx'
 
 beforeEach(cleanup)
 expect.extend(matchers)
 
-export function renderRoute() {
+export function renderApp(location: string) {
+  const user = userEvent.setup()
+  const router = createMemoryRouter(routes, {
+    initialEntries: [location],
+  })
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -23,12 +30,11 @@ export function renderRoute() {
     },
   })
 
-  const user = userEvent.setup()
-  const screen = render(
+  const container = render(
     <QueryClientProvider client={queryClient}>
-      <App />
+      <RouterProvider router={router} />
     </QueryClientProvider>
   )
 
-  return { user, ...screen }
+  return { user, ...container }
 }
