@@ -98,7 +98,11 @@ export default function TodoList() {
     removeTask.mutate(taskId)
   }
 
-  function handleClearCompleted() {}
+  function handleClearCompleted() {
+    for (const task of tasks.filter((task) => task.completed === 1)) {
+      removeTask.mutate(task.id)
+    }
+  }
   console.log(tasks)
 
   return (
@@ -171,7 +175,7 @@ export default function TodoList() {
           <div></div>
         )}
         {allTasks &&
-        allTasks?.filter((task) => task.completed === true).length > 0 ? (
+        allTasks?.filter((task) => task.completed === 1).length > 0 ? (
           <button className="clear-completed" onClick={handleClearCompleted}>
             Clear completed
           </button>
