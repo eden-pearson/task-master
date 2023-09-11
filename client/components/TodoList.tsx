@@ -13,6 +13,8 @@ export default function TodoList() {
   const [active, setActive] = useState(false)
   const [completed, setCompleted] = useState(false)
   const [tasks, setTasks] = useState<Task[]>([])
+  const [editTaskId, setEditTaskId] = useState<number | null>(null)
+  const [taskForm, setTaskForm] = useState('')
 
   const {
     data: allTasks,
@@ -30,7 +32,6 @@ export default function TodoList() {
       queryClient.invalidateQueries(['tasks'])
     },
   })
-
   const removeTask = useMutation(deleteTask, {
     onSuccess: () => {
       queryClient.invalidateQueries(['tasks'])
@@ -103,6 +104,21 @@ export default function TodoList() {
       removeTask.mutate(task.id)
     }
   }
+
+  function handleDoubleClick(taskId: number, taskName: string) {
+    setEditTaskId(taskId)
+    setTaskForm(taskName)
+  }
+
+  function handleTaskChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setTaskForm(event.target.value)
+  }
+
+  function submitTaskUpdate(taskId: number) {
+    editTask.mutate({ id: taskId, name: taskForm })
+    setEditTaskId(null)
+    setTaskForm('')
+  }
   console.log(tasks)
 
   return (
@@ -110,32 +126,51 @@ export default function TodoList() {
       <input id="toggle-all" className="toggle-all" type="checkbox" />
       <label htmlFor="toggle-all">Mark all as complete</label>
       <ul className="todo-list">
-        {allTasks
-          ? tasks.map((task) => {
-              return (
-                <li key={task.id} className={task.completed ? 'completed' : ''}>
-                  <div className="view">
-                    <input
-                      className="toggle"
-                      type="checkbox"
-                      checked={Boolean(task.completed)}
-                      onChange={(event) => handleStatusChange(task.id, event)}
-                    />
-                    <label>{task.name}</label>
-                    <button
-                      className={'destroy'}
-                      onClick={() => deleteTaskClick(task.id)}
-                    ></button>
-                  </div>
+        {allTasks && tasks.length > 0 ? (
+          tasks.map((task) => {
+            return (
+              <li key={task.id} className={task.completed ? 'completed' : ''}>
+                <div className="view">
                   <input
-                    className="edit"
-                    value={task.name}
-                    onChange={(event) => handleNameChange(task.id, event)}
+                    className="toggle"
+                    type="checkbox"
+                    checked={Boolean(task.completed)}
+                    onChange={(event) => handleStatusChange(task.id, event)}
                   />
-                </li>
-              )
-            })
-          : ''}
+                  {editTaskId === task.id ? (
+                    <input
+                      type="text"
+                      onChange={(event) => handleTaskChange(event)}
+                      onBlur={() => submitTaskUpdate(task.id)}
+                      value={taskForm}
+                    ></input>
+                  ) : (
+                    <label
+                      onDoubleClick={() =>
+                        handleDoubleClick(task.id, task.name)
+                      }
+                    >
+                      {task.name}
+                    </label>
+                  )}
+                  <button
+                    className={'destroy'}
+                    onClick={() => deleteTaskClick(task.id)}
+                  ></button>
+                </div>
+                <input
+                  className="edit"
+                  value={task.name}
+                  onChange={(event) => handleNameChange(task.id, event)}
+                />
+              </li>
+            )
+          })
+        ) : (
+          <li>
+            <p>No tasks found</p>
+          </li>
+        )}
       </ul>
       <div className="footer">
         <span className="todo-count">
