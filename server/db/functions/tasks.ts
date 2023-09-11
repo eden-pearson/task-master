@@ -5,10 +5,6 @@ export async function getAllTasks(): Promise<Task[]> {
   return db('tasks').select('*')
 }
 
-// export function getTask(id: number): Promise<Task> {
-//   return db('tasks').select().where({ id }).first()
-// }
-
 export function createTask(task: string): Promise<Task[]> {
   return db('tasks').insert({ name: task }).returning('*')
 }

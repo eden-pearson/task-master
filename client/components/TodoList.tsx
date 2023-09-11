@@ -1,5 +1,10 @@
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
-import { getAllTasks, updateTask, updateTaskStatus } from '../apis/tasks'
+import {
+  deleteTask,
+  getAllTasks,
+  updateTask,
+  updateTaskStatus,
+} from '../apis/tasks'
 import { useEffect, useState } from 'react'
 import { Task, TaskObject } from '../../models/tasks'
 
@@ -21,6 +26,12 @@ export default function TodoList() {
     },
   })
   const editTask = useMutation(updateTask, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['tasks'])
+    },
+  })
+
+  const removeTask = useMutation(deleteTask, {
     onSuccess: () => {
       queryClient.invalidateQueries(['tasks'])
     },
@@ -71,7 +82,7 @@ export default function TodoList() {
     if (allTasks) {
       setActive(true)
       setCompleted(false)
-      setTasks(allTasks.filter((task) => task.completed === false))
+      setTasks(allTasks.filter((task) => task.completed === 0))
     }
   }
 
@@ -79,9 +90,17 @@ export default function TodoList() {
     if (allTasks) {
       setActive(false)
       setCompleted(true)
-      setTasks(allTasks.filter((task) => task.completed === true))
+      setTasks(allTasks.filter((task) => task.completed === 1))
     }
   }
+
+  function deleteTaskClick(taskId: number) {
+    removeTask.mutate(taskId)
+  }
+
+  function handleClearCompleted() {}
+  console.log(tasks)
+
   return (
     <div>
       <input id="toggle-all" className="toggle-all" type="checkbox" />
@@ -100,7 +119,8 @@ export default function TodoList() {
                     />
                     <label>{task.name}</label>
                     <button
-                      className={task.completed ? 'destroy' : ''}
+                      className={'destroy'}
+                      onClick={() => deleteTaskClick(task.id)}
                     ></button>
                   </div>
                   <input
@@ -116,7 +136,7 @@ export default function TodoList() {
       <div className="footer">
         <span className="todo-count">
           <strong>
-            {tasks.filter((task) => task.completed === false).length}
+            {tasks.filter((task) => task.completed === 0).length || 0}
           </strong>{' '}
           items left
         </span>
@@ -152,7 +172,9 @@ export default function TodoList() {
         )}
         {allTasks &&
         allTasks?.filter((task) => task.completed === true).length > 0 ? (
-          <button className="clear-completed">Clear completed</button>
+          <button className="clear-completed" onClick={handleClearCompleted}>
+            Clear completed
+          </button>
         ) : (
           ''
         )}

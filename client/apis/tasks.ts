@@ -7,11 +7,6 @@ export async function getAllTasks(): Promise<Task[]> {
   return response.body
 }
 
-// export async function getTask(taskId: number): Promise<Task> {
-//   const response = await request.get(`${apiUrl}/${taskId}`)
-//   return response.body
-// }
-
 export async function createTask(task: string): Promise<Task> {
   const response = await request.post(apiUrl).send({ name: task })
   return response.body
