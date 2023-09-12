@@ -24,7 +24,6 @@ export default function UserForm() {
     })
   }, [user])
 
-  // navigate the user away from this form if profile is already created
   useEffect(() => {
     if (userData.data) navigate('/')
   }, [userData.data, navigate])

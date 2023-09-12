@@ -47,30 +47,3 @@ router.post('/', checkJwt, async (req: JwtRequest, res) => {
 })
 
 export default router
-
-// GET /api/v1/users
-// router.get('/', async (req, res) => {
-//   try {
-//     const users = await getAllUsers()
-//     res.json({ users })
-//   } catch (error) {
-//     console.error(error)
-//     res
-//       .status(500)
-//       .json({ error: 'Uh oh! there was an error fetching all users' })
-//   }
-// })
-
-// // GET /api/v1/users/:id
-// router.get('/:id', async (req, res) => {
-//   try {
-//     const id = Number(req.params.id)
-//     const user = await getUserById(id)
-//     res.json({ user })
-//   } catch (error) {
-//     console.error(error)
-//     res.status(500).json({
-//       error: 'Uh oh! there was an error fetching your user information',
-//     })
-//   }
-// })
