@@ -1,37 +1,34 @@
 import { useAuth0 } from '@auth0/auth0-react'
 import { useState, useEffect } from 'react'
-import { UpdateUser } from '../../models/users'
+import { User } from '../../models/users'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { useProfile } from '../hooks/users.ts'
+import { useUser } from '../hooks/users.ts'
 
 export default function UserForm() {
   const navigate = useNavigate()
   const { getAccessTokenSilently, user } = useAuth0()
-  const profile = useProfile()
-  const queryClient = useQueryClient()
+  const userData = useUser()
 
-  const initialFormData: UpdateUser = {
-    username: user?.nickname ? user.nickname : '',
+  const initialFormData: User = {
+    displayName: user?.given_name ? user.given_name : '',
     favouriteColour: '',
-    location: '',
     image: user?.picture ? user.picture : '/images/girl.png',
   }
-  const [newUser, setNewUser] = useState<UpdateUser>(initialFormData)
+  const [newUser, setNewUser] = useState<User>(initialFormData)
 
   useEffect(() => {
     setNewUser({
-      username: user?.name ? user.name : '',
+      displayName: user?.given_name ? user.given_name : '',
       favouriteColour: '',
-      location: '',
       image: user?.picture ? user.picture : '/images/girl.png',
     })
   }, [user])
 
   // navigate the user away from this form if profile is already created
   useEffect(() => {
-    if (profile.data) navigate('/')
-  }, [profile.data, navigate])
+    if (userData.data) navigate('/')
+  }, [userData.data, navigate])
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
@@ -39,7 +36,7 @@ export default function UserForm() {
     setNewUser({
       ...newUser,
       [name]: value,
-    } as UpdateUser)
+    } as User)
   }
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -48,14 +45,14 @@ export default function UserForm() {
     setNewUser({
       ...newUser,
       [name]: value,
-    } as UpdateUser)
+    } as User)
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    await queryClient.invalidateQueries(['users'])
+    console.log(newUser)
     const token = await getAccessTokenSilently()
-    profile.add.mutate({ newUser, token })
+    userData.add.mutate({ newUser, token })
   }
   return (
     <>
@@ -66,18 +63,18 @@ export default function UserForm() {
             <img
               className="px-8 h-40"
               src={newUser.image}
-              alt={newUser.username}
+              alt={newUser.displayName}
             ></img>
           </p>
           <form onSubmit={handleSubmit} className="flex flex-col">
             <label className="my-2">
-              Username:
+              Name:
               <input
                 onChange={handleChange}
                 type="text"
-                name="username"
-                placeholder={user?.nickname}
-                value={newUser.username}
+                name="displayName"
+                placeholder={user?.name}
+                value={newUser.displayName}
                 className="text-center my-2 mt-5"
                 required
               ></input>
@@ -85,15 +82,11 @@ export default function UserForm() {
             <label className="my-2">
               <b>Favourite Colour:</b>
               <select
-                id="colour"
-                name="colour"
+                id="favouriteColour"
+                name="favouriteColour"
                 className=""
                 onChange={handleSelectChange}
-                defaultValue={'none'}
               >
-                <option value={'none'} disabled>
-                  choose one
-                </option>
                 <option value="red">Red</option>
                 <option value="green">Green</option>
                 <option value="blue">Blue</option>
@@ -101,17 +94,6 @@ export default function UserForm() {
                 <option value="gray">Grey</option>
                 <option value="yellow">Yellow</option>
               </select>
-            </label>
-            <label className="my-2">
-              Location:
-              <input
-                onChange={handleChange}
-                type="text"
-                name="location"
-                value={newUser.location}
-                placeholder="country"
-                className="text-center my-2 mt-5"
-              ></input>
             </label>
             <button
               type="submit"

@@ -1,9 +1,8 @@
 import { useAuth0 } from '@auth0/auth0-react'
-import { Link } from 'react-router-dom'
-import { useProfile } from '../hooks/users'
+// import { useUser } from '../hooks/users'
 
 export default function Nav() {
-  const { data: userData } = useProfile()
+  // const { data: userData } = useUser()
   const { user, logout, loginWithRedirect } = useAuth0()
 
   function handleSignOut() {
@@ -12,6 +11,10 @@ export default function Nav() {
 
   const handleSignIn = () => {
     loginWithRedirect({ redirectUri: `${window.location.origin}/register` })
+  }
+
+  if (user) {
+    console.log(user)
   }
 
   return (

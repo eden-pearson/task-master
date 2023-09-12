@@ -1,11 +1,22 @@
 import request from 'superagent'
-import type { UpdateUser, User } from '../../models/users'
+import type { User } from '../../models/users'
 
 const rootUrl = '/api/v1/users'
 
-export async function fetchProfile(username: string): Promise<User> {
+export async function fetchAllUsers(): Promise<User[]> {
   try {
-    const res = await request.get(`/${rootUrl}/profiles/${username}`)
+    const res = await request.get(rootUrl)
+    console.log(res.body.users)
+    return res.body.users
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
+export async function fetchUserById(id: number): Promise<User> {
+  try {
+    const res = await request.get(`/${rootUrl}/${id}`)
     console.log(res.body.user)
     return res.body.user
   } catch (error) {
@@ -14,37 +25,28 @@ export async function fetchProfile(username: string): Promise<User> {
   }
 }
 
-export async function addProfile({
+export async function addUser({
   newUser,
   token,
 }: {
-  newUser: UpdateUser
+  newUser: User
   token: string
 }): Promise<User> {
-  try {
-    const res = await request
-      .post(rootUrl)
-      .set('Authorization', `Bearer ${token}`)
-      .send(newUser)
-    console.log(res.body)
-    return res.body
-  } catch (error) {
-    console.error(error)
-    throw error
-  }
+  console.log(newUser)
+  const res = await request
+    .post(rootUrl)
+    .set('Authorization', `Bearer ${token}`)
+    .send(newUser)
+  console.log(res.body)
+  return res.body
 }
 
-export async function fetchProfileByToken(token: string): Promise<User> {
-  try {
-    const res = await request
-      .get(`${rootUrl}/profile`)
-      .set('Authorization', `Bearer ${token}`)
-    console.log(res.body.user)
-    return res.body.user
-  } catch (error) {
-    console.error(error)
-    throw error
-  }
+export async function fetchUserByToken(token: string): Promise<User> {
+  const res = await request
+    .get(`${rootUrl}/info`)
+    .set('Authorization', `Bearer ${token}`)
+  console.log(res.body)
+  return res.body.user ? res.body.user : null
 }
 
 // **WITHOUT ERROR HANDLING**

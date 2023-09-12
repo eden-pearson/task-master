@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react'
-import { addProfile, fetchProfileByToken } from '../apis/users'
+import { addUser, fetchUserByToken } from '../apis/users'
 import {
   MutationFunction,
   useMutation,
@@ -7,7 +7,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
-export function useProfileMutation<TData = unknown, TVariables = unknown>(
+export function useUserMutation<TData = unknown, TVariables = unknown>(
   mutationFn: MutationFunction<TData, TVariables>
 ) {
   const queryClient = useQueryClient()
@@ -15,29 +15,29 @@ export function useProfileMutation<TData = unknown, TVariables = unknown>(
   return useMutation({
     mutationFn,
     onSuccess: () => {
-      queryClient.invalidateQueries(['profile'])
+      queryClient.invalidateQueries(['userData'])
     },
   })
 }
 
-export function useAddProfile() {
-  return useProfileMutation(addProfile)
+export function useAddUser() {
+  return useUserMutation(addUser)
 }
 
-export function useProfile() {
+export function useUser() {
   const { user, getAccessTokenSilently } = useAuth0()
 
   const query = useQuery({
-    queryKey: ['profile'],
+    queryKey: ['userData'],
     queryFn: async () => {
       const token = await getAccessTokenSilently()
-      return fetchProfileByToken(token)
+      return fetchUserByToken(token)
     },
     enabled: !!user,
   })
 
   return {
     ...query,
-    add: useAddProfile(),
+    add: useAddUser(),
   }
 }
