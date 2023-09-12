@@ -4,7 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Auth0Provider } from '@auth0/auth0-react'
 
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
-import { routes } from './Routes'
+import { routes } from './routes'
 
 const queryClient = new QueryClient()
 export const router = createBrowserRouter(routes)

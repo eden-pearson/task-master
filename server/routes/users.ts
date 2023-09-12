@@ -5,7 +5,8 @@ import {
   getUserProfile,
   updateUserProfile,
   addUserProfile,
-  getUserById, getAllProfiles
+  getUserById,
+  getAllProfiles,
 } from '../db/functions/users'
 import { UpdateUser, UserSnakeCase } from '../../models/users'
 
@@ -61,7 +62,7 @@ router.get('/profile', checkJwt, async (req: JwtRequest, res) => {
     res.json({ user })
   } catch (error) {
     console.error(error)
-    res.status(500).send('Uh oh! there was an error fetching your profile)
+    res.status(500).send('Uh oh! there was an error fetching your profile')
   }
 })
 
@@ -69,7 +70,12 @@ router.get('/profile', checkJwt, async (req: JwtRequest, res) => {
 router.post('/', checkJwt, async (req: JwtRequest, res) => {
   try {
     const auth0Id = req.auth?.sub as string
-    const { username, favouriteColour: favourite_colour, location, image } = req.body
+    const {
+      username,
+      favouriteColour: favourite_colour,
+      location,
+      image,
+    } = req.body
 
     const newUser: UserSnakeCase = {
       username,
@@ -83,7 +89,7 @@ router.post('/', checkJwt, async (req: JwtRequest, res) => {
     res.json(success)
   } catch (error) {
     res.status(500).json({
-      error: 'There was an error adding your user profile...',
+      error: 'Uh oh! there was an error adding your profile',
     })
   }
 })
