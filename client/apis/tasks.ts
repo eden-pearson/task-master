@@ -2,13 +2,24 @@ import request from 'superagent'
 import { Task, TaskObject } from '../../models/tasks'
 const apiUrl = '/api/v1/tasks'
 
-export async function getAllTasks(): Promise<Task[]> {
-  const response = await request.get(apiUrl)
+export async function getTasksByAuthId(token: string): Promise<Task[]> {
+  const response = await request
+    .get(apiUrl)
+    .set('Authorization', `Bearer ${token}`)
   return response.body
 }
 
-export async function createTask(task: string): Promise<Task> {
-  const response = await request.post(apiUrl).send({ name: task })
+export async function createTask({
+  task,
+  token,
+}: {
+  task: string
+  token: string
+}): Promise<Task> {
+  const response = await request
+    .post(apiUrl)
+    .send({ name: task })
+    .set('Authorization', `Bearer ${token}`)
   return response.body
 }
 

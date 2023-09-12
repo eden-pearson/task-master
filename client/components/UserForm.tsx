@@ -2,7 +2,6 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useState, useEffect } from 'react'
 import { User } from '../../models/users'
 import { useNavigate } from 'react-router-dom'
-import { useQueryClient } from '@tanstack/react-query'
 import { useUser } from '../hooks/users.ts'
 
 export default function UserForm() {
@@ -50,7 +49,6 @@ export default function UserForm() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    console.log(newUser)
     const token = await getAccessTokenSilently()
     userData.add.mutate({ newUser, token })
   }

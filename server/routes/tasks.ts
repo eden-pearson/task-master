@@ -1,18 +1,20 @@
 import express from 'express'
 import {
-  getAllTasks,
+  getTasksByAuthId,
   createTask,
   updateTask,
   deleteTask,
   updateTaskStatus,
 } from '../db/functions/tasks.ts'
+import checkJwt, { JwtRequest } from '../auth0.ts'
 
 const router = express.Router()
 
-// GET /api/v1/tasks
-router.get('/', async (req, res) => {
+// GET /api/v1/tasks/
+router.get('/', checkJwt, async (req: JwtRequest, res) => {
   try {
-    const tasks = await getAllTasks()
+    const auth0Id = req.auth?.sub as string
+    const tasks = await getTasksByAuthId(auth0Id)
     res.json(tasks)
   } catch (err) {
     console.log(err)
@@ -39,10 +41,13 @@ router.get('/', async (req, res) => {
 // })
 
 // POST /api/v1/tasks
-router.post('/', async (req, res) => {
+router.post('/', checkJwt, async (req: JwtRequest, res) => {
   try {
+    const auth0Id = req.auth?.sub as string
     const task = req.body.name
-    const response = await createTask(task)
+    console.log(task)
+    console.log(auth0Id)
+    const response = await createTask(task, auth0Id)
     res.json(response)
   } catch (err) {
     console.log(err)
@@ -54,7 +59,7 @@ router.post('/', async (req, res) => {
 })
 
 // PATCH /api/v1/tasks/:id
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', checkJwt, async (req: JwtRequest, res) => {
   try {
     const id = Number(req.params.id)
     if (isNaN(id)) {
@@ -73,7 +78,7 @@ router.patch('/:id', async (req, res) => {
 })
 
 // PATCH /api/v1/tasks/:id/status/:status
-router.patch('/:id/status/:status', async (req, res) => {
+router.patch('/:id/status/:status', checkJwt, async (req: JwtRequest, res) => {
   try {
     const id = Number(req.params.id)
     if (isNaN(id)) {
@@ -92,7 +97,7 @@ router.patch('/:id/status/:status', async (req, res) => {
 })
 
 // DELETE /api/v1/tasks/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', checkJwt, async (req: JwtRequest, res) => {
   try {
     const id = Number(req.params.id)
     if (isNaN(id)) {

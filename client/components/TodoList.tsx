@@ -1,12 +1,13 @@
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
 import {
   deleteTask,
-  getAllTasks,
+  getTasksByAuthId,
   updateTask,
   updateTaskStatus,
 } from '../apis/tasks'
 import { useEffect, useState } from 'react'
 import { Task, TaskObject } from '../../models/tasks'
+import { useAuth0 } from '@auth0/auth0-react'
 
 export default function TodoList() {
   const queryClient = useQueryClient()
@@ -15,12 +16,16 @@ export default function TodoList() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [editTaskId, setEditTaskId] = useState<number | null>(null)
   const [taskForm, setTaskForm] = useState('')
+  const { user, getAccessTokenSilently } = useAuth0()
 
   const {
     data: allTasks,
     isLoading,
     error,
-  } = useQuery(['tasks'], () => getAllTasks())
+  } = useQuery(['tasks'], async () => {
+    const token = await getAccessTokenSilently()
+    return getTasksByAuthId(token)
+  })
 
   const taskComplete = useMutation(updateTaskStatus, {
     onSuccess: () => {
