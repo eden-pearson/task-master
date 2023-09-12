@@ -6,7 +6,7 @@ import {
   updateTaskStatus,
 } from '../apis/tasks'
 import { useEffect, useState } from 'react'
-import { Task, TaskObject } from '../../models/tasks'
+import { Task } from '../../models/tasks'
 import { useAuth0 } from '@auth0/auth0-react'
 
 export default function TodoList() {
@@ -16,7 +16,7 @@ export default function TodoList() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [editTaskId, setEditTaskId] = useState<number | null>(null)
   const [taskForm, setTaskForm] = useState('')
-  const { user, getAccessTokenSilently } = useAuth0()
+  const { getAccessTokenSilently } = useAuth0()
 
   const {
     data: allTasks,

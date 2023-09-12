@@ -24,22 +24,6 @@ router.get('/', checkJwt, async (req: JwtRequest, res) => {
   }
 })
 
-// GET /api/v1/tasks/task/:id
-// router.get('/task/:id', async (req, res) => {
-//   try {
-//     const id = Number(req.params.id)
-//     if (isNaN(id)) {
-//       res.status(400).json({ error: 'Task ID must be a number' })
-//       return
-//     }
-//     const task = await getTask(id)
-//     res.json(task)
-//   } catch (err) {
-//     console.log(err)
-//     res.status(500).json({ error: 'Uh oh! Something fetching the task' })
-//   }
-// })
-
 // POST /api/v1/tasks
 router.post('/', checkJwt, async (req: JwtRequest, res) => {
   try {
@@ -59,7 +43,7 @@ router.post('/', checkJwt, async (req: JwtRequest, res) => {
 })
 
 // PATCH /api/v1/tasks/:id
-router.patch('/:id', checkJwt, async (req: JwtRequest, res) => {
+router.patch('/:id', async (req, res) => {
   try {
     const id = Number(req.params.id)
     if (isNaN(id)) {
@@ -78,7 +62,7 @@ router.patch('/:id', checkJwt, async (req: JwtRequest, res) => {
 })
 
 // PATCH /api/v1/tasks/:id/status/:status
-router.patch('/:id/status/:status', checkJwt, async (req: JwtRequest, res) => {
+router.patch('/:id/status/:status', async (req, res) => {
   try {
     const id = Number(req.params.id)
     if (isNaN(id)) {
@@ -97,7 +81,7 @@ router.patch('/:id/status/:status', checkJwt, async (req: JwtRequest, res) => {
 })
 
 // DELETE /api/v1/tasks/:id
-router.delete('/:id', checkJwt, async (req: JwtRequest, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const id = Number(req.params.id)
     if (isNaN(id)) {
