@@ -67,14 +67,6 @@ export default function TodoList() {
     taskComplete.mutate({ id: taskId, completed: isChecked })
   }
 
-  function handleNameChange(
-    taskId: number,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const updatedTaskName = event.target.value
-    editTask.mutate({ id: taskId, name: updatedTaskName })
-  }
-
   function filterByAll() {
     if (allTasks) {
       setActive(false)
@@ -118,6 +110,14 @@ export default function TodoList() {
     setTaskForm(event.target.value)
   }
 
+  function handleNameChange(
+    taskId: number,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const updatedTaskName = event.target.value
+    editTask.mutate({ id: taskId, name: updatedTaskName })
+  }
+
   function submitTaskUpdate(taskId: number) {
     editTask.mutate({ id: taskId, name: taskForm })
     setEditTaskId(null)
@@ -140,6 +140,7 @@ export default function TodoList() {
                     type="checkbox"
                     checked={Boolean(task.completed)}
                     onChange={(event) => handleStatusChange(task.id, event)}
+                    aria-label="mark-complete"
                   />
                   {editTaskId === task.id ? (
                     <input
@@ -147,26 +148,24 @@ export default function TodoList() {
                       onChange={(event) => handleTaskChange(event)}
                       onBlur={() => submitTaskUpdate(task.id)}
                       value={taskForm}
+                      aria-label="edit-task-name"
                     ></input>
                   ) : (
-                    <label
+                    <div
+                      aria-label="Double click to edit task"
                       onDoubleClick={() =>
                         handleDoubleClick(task.id, task.name)
                       }
                     >
                       {task.name}
-                    </label>
+                    </div>
                   )}
                   <button
+                    aria-label="delete-button"
                     className={'destroy'}
                     onClick={() => deleteTaskClick(task.id)}
                   ></button>
                 </div>
-                <input
-                  className="edit"
-                  value={task.name}
-                  onChange={(event) => handleNameChange(task.id, event)}
-                />
               </li>
             )
           })

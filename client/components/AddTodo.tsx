@@ -25,8 +25,9 @@ function AddTodo() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} aria-label="Add new task">
       <input
+        aria-label="New task name"
         onChange={handleChange}
         className="new-todo"
         placeholder="What needs to be done?"
