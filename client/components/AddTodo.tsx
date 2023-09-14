@@ -26,10 +26,15 @@ function AddTodo() {
 
   return (
     <form onSubmit={handleSubmit} aria-label="Add new task">
+      <label htmlFor="todo-input" className="sr-only">
+        New Todo
+      </label>
       <input
-        aria-label="New task name"
+        id="todo-input"
         onChange={handleChange}
-        className="new-todo"
+        className="w-full text-2xl font-inherit text-inherit leading-[1.4em] p-4 border border-gray-400 shadow-inner"
+        type="text"
+        // className="new-todo"
         placeholder="What needs to be done?"
         autoFocus={true}
         value={task}

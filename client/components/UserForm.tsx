@@ -60,7 +60,7 @@ export default function UserForm() {
             <img
               className="px-8 h-40"
               src={newUser.image}
-              alt={newUser.displayName}
+              alt={`${newUser.displayName}'s profile`}
             ></img>
           </p>
           <form onSubmit={handleSubmit} className="flex flex-col">

@@ -1,8 +1,8 @@
 import { useAuth0 } from '@auth0/auth0-react'
+import { Link } from 'react-router-dom'
 // import { useUser } from '../hooks/users'
 
 export default function Nav() {
-  // const { data: userData } = useUser()
   const { user, logout, loginWithRedirect } = useAuth0()
 
   function handleSignOut() {
@@ -19,16 +19,36 @@ export default function Nav() {
 
   return (
     <>
-      <nav className="">
-        <div className="">
+      <nav className="flex items-center bg-red-700 h-20 justify-between">
+        <Link to="/">
+          <img
+            src="TaskMaster-white-logo.png"
+            alt="TaskMaster logo"
+            className="h-20 ml-4 hover:opacity-80 transition-opacity duration-200 ease-in-out"
+          ></img>
+        </Link>
+        <div className="mr-4">
           {!user ? (
-            <button className="text-lg " onClick={handleSignIn}>
+            <button
+              className="text-lg text-white hover:text-xl focus:outline-none focus:ring-2"
+              onClick={handleSignIn}
+            >
               Login
             </button>
           ) : (
-            <button className="text-lg" onClick={handleSignOut}>
-              Logout
-            </button>
+            <div className="flex gap-6">
+              <button
+                className="text-lg text-white hover:text-xl focus:outline-none focus:ring-2"
+                onClick={handleSignOut}
+              >
+                Logout
+              </button>
+              <img
+                className="h-14 rounded-full"
+                src={user.picture}
+                alt={`${user.name} profile`}
+              ></img>
+            </div>
           )}
         </div>
       </nav>

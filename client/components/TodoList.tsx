@@ -8,15 +8,21 @@ import {
 import { useEffect, useState } from 'react'
 import { Task } from '../../models/tasks'
 import { useAuth0 } from '@auth0/auth0-react'
+// import Filters from './Filters'
 
 export default function TodoList() {
+  // const [activeFilter, setActiveFilter] = useState<string>('all')
+  // function handleFilterChange(newFilter: string) {
+  //   setActiveFilter(newFilter)
+  // }
+
   const queryClient = useQueryClient()
-  const [active, setActive] = useState(false)
-  const [completed, setCompleted] = useState(false)
   const [tasks, setTasks] = useState<Task[]>([])
   const [editTaskId, setEditTaskId] = useState<number | null>(null)
   const [taskForm, setTaskForm] = useState('')
   const { getAccessTokenSilently } = useAuth0()
+  const [active, setActive] = useState(false)
+  const [completed, setCompleted] = useState(false)
 
   const {
     data: allTasks,
@@ -50,13 +56,17 @@ export default function TodoList() {
   }, [allTasks])
 
   if (isLoading) {
-    return <div>Tasks loading...</div>
+    return (
+      <div role="status" aria-live="polite">
+        Tasks loading...
+      </div>
+    )
   }
 
   if (error instanceof Error) {
-    return <div>Something went wrong: {error.message}</div>
+    return <div role="alert">Something went wrong: {error.message}</div>
   } else if (error) {
-    return <div>An unknown error has occurred</div>
+    return <div role="alert">An unknown error has occurred</div>
   }
 
   function handleStatusChange(
@@ -65,6 +75,25 @@ export default function TodoList() {
   ) {
     const isChecked = event.target.checked
     taskComplete.mutate({ id: taskId, completed: isChecked })
+  }
+
+  function deleteTaskClick(taskId: number) {
+    removeTask.mutate(taskId)
+  }
+
+  function handleDoubleClick(taskId: number, taskName: string) {
+    setEditTaskId(taskId)
+    setTaskForm(taskName)
+  }
+
+  function handleTaskChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setTaskForm(event.target.value)
+  }
+
+  function submitTaskUpdate(taskId: number) {
+    editTask.mutate({ id: taskId, name: taskForm })
+    setEditTaskId(null)
+    setTaskForm('')
   }
 
   function filterByAll() {
@@ -90,68 +119,58 @@ export default function TodoList() {
       setTasks(allTasks.filter((task) => task.completed === 1))
     }
   }
-
-  function deleteTaskClick(taskId: number) {
-    removeTask.mutate(taskId)
-  }
-
   function handleClearCompleted() {
     for (const task of tasks.filter((task) => task.completed === 1)) {
       removeTask.mutate(task.id)
     }
   }
 
-  function handleDoubleClick(taskId: number, taskName: string) {
-    setEditTaskId(taskId)
-    setTaskForm(taskName)
-  }
-
-  function handleTaskChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setTaskForm(event.target.value)
-  }
-
-  function handleNameChange(
-    taskId: number,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const updatedTaskName = event.target.value
-    editTask.mutate({ id: taskId, name: updatedTaskName })
-  }
-
-  function submitTaskUpdate(taskId: number) {
-    editTask.mutate({ id: taskId, name: taskForm })
-    setEditTaskId(null)
-    setTaskForm('')
-  }
-
   return (
     <div>
-      <input id="toggle-all" className="toggle-all" type="checkbox" />
-      <label htmlFor="toggle-all">Mark all as complete</label>
-      <h2 id="todo-header">Tasks</h2>
+      <h2 className="sr-only" id="todo-header">
+        Tasks List
+      </h2>
       <ul aria-labelledby="todo-header" id="todoList" className="todo-list">
         {allTasks && tasks.length > 0 ? (
           tasks.map((task) => {
             return (
-              <li key={task.id} className={task.completed ? 'completed' : ''}>
-                <div className="view">
+              <li
+                key={task.id}
+                className={`group flex items-center justify-between px-4 py-3 text-xl border-b border-gray-400 ${
+                  task.completed ? 'text-gray-500 line-through' : ''
+                }`}
+              >
+                <div className="flex">
                   <input
-                    className="toggle"
+                    id={`${task.id}-checkbox`}
+                    className="opacity-0 absolute"
                     type="checkbox"
                     checked={Boolean(task.completed)}
                     onChange={(event) => handleStatusChange(task.id, event)}
-                    aria-label="mark-complete"
+                    aria-label={`Mark task "${task.name}" as complete`}
+                  />
+                  <label
+                    aria-label={`Mark task "${task.name}" as complete`}
+                    htmlFor={`${task.id}-checkbox`}
+                    className="w-10 h-10 bg-no-repeat bg-center cursor-pointer"
+                    style={
+                      task.completed
+                        ? { backgroundImage: `url('/images/checked.svg')` }
+                        : { backgroundImage: `url('/images/unchecked.svg')` }
+                    }
                   />
                   {editTaskId === task.id ? (
                     <input
                       type="text"
+                      className="ml-4"
                       onChange={(event) => handleTaskChange(event)}
                       onBlur={() => submitTaskUpdate(task.id)}
                       value={taskForm}
                       aria-label="edit-task-name"
-                    ></input>
+                    />
                   ) : (
                     <div
+                      className="ml-4"
                       aria-label="Double click to edit task"
                       onDoubleClick={() =>
                         handleDoubleClick(task.id, task.name)
@@ -160,12 +179,15 @@ export default function TodoList() {
                       {task.name}
                     </div>
                   )}
-                  <button
-                    aria-label="delete-button"
-                    className={'destroy'}
-                    onClick={() => deleteTaskClick(task.id)}
-                  ></button>
                 </div>
+                <button
+                  className={`invisible w-10 h-10 text-3xl transition-colors duration-200 ease-out text-red-400 mr-3 ${
+                    task.completed ? ' ' : 'group-hover:visible'
+                  } `}
+                  onClick={() => deleteTaskClick(task.id)}
+                >
+                  x
+                </button>
               </li>
             )
           })
@@ -175,51 +197,61 @@ export default function TodoList() {
           </li>
         )}
       </ul>
-      <div className="footer">
-        <span className="todo-count">
-          <strong>
-            {tasks.filter((task) => task.completed === 0).length || 0}
-          </strong>{' '}
-          items left
-        </span>
-        {allTasks && allTasks.length > 1 ? (
-          <ul className="filters">
-            <li>
-              <button
-                onClick={filterByAll}
-                className={!active && !completed ? 'selected' : ''}
-              >
-                All
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={filterByActive}
-                className={active ? 'selected' : ''}
-              >
-                Active
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={filterByCompleted}
-                className={completed ? 'selected' : ''}
-              >
-                Completed
-              </button>
-            </li>
-          </ul>
-        ) : (
-          <div></div>
-        )}
-        {allTasks &&
-        allTasks?.filter((task) => task.completed === 1).length > 0 ? (
-          <button className="clear-completed" onClick={handleClearCompleted}>
+      <div>
+        <div className="flex justify-between items-center p-4">
+          <span className="todo-count">
+            <strong>
+              {tasks.filter((task) => task.completed === 0).length || 0}
+            </strong>{' '}
+            items left
+          </span>
+          {allTasks && allTasks.length > 1 ? (
+            <ul className="m-0 p-0 list-none">
+              <li className="inline">
+                <button
+                  onClick={filterByAll}
+                  className={` p-2 mx-3 rounded-md hover:border hover:border-red-200 ${
+                    !active && !completed ? 'border border-red-400' : ''
+                  } `}
+                >
+                  All
+                </button>
+              </li>
+              <li className="inline">
+                <button
+                  onClick={filterByActive}
+                  className={`p-2 mx-3 rounded-md hover:border hover:border-red-200 ${
+                    active ? 'border border-red-400' : ''
+                  } `}
+                >
+                  Active
+                </button>
+              </li>
+              <li className="inline">
+                <button
+                  onClick={filterByCompleted}
+                  className={`rounded-md p-2 mx-3 hover:border hover:border-red-200 ${
+                    completed ? ' border border-red-400' : ''
+                  } `}
+                >
+                  Completed
+                </button>
+              </li>
+            </ul>
+          ) : (
+            <div></div>
+          )}
+          <button
+            className={`float-right relative align-middle hover:underline no-underline cursor-pointer ${
+              allTasks.filter((task) => task.completed === 1).length === 0
+                ? 'invisible'
+                : ''
+            }`}
+            onClick={handleClearCompleted}
+          >
             Clear completed
           </button>
-        ) : (
-          ''
-        )}
+        </div>
       </div>
     </div>
   )
