@@ -10,7 +10,7 @@ export default function Footer() {
         </a>
       </div>
       <div className="mt-4 text-gray-600">
-        eden is a 10/10 developer. please hire her
+        eden is a top notch developer. please hire her
       </div>
     </div>
   )

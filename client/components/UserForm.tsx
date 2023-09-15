@@ -18,7 +18,11 @@ export default function UserForm() {
 
   useEffect(() => {
     setNewUser({
-      displayName: user?.given_name ? user.given_name : '',
+      displayName: user?.given_name
+        ? user.given_name
+        : user?.nickname
+        ? user.nickname
+        : '',
       favouriteColour: '',
       image: user?.picture ? user.picture : '/images/girl.png',
     })
@@ -45,6 +49,9 @@ export default function UserForm() {
       [name]: value,
     } as User)
   }
+  if (user) {
+    console.log(user)
+  }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -54,17 +61,15 @@ export default function UserForm() {
   return (
     <>
       <div className="flex justify-center my-20">
-        <div className="flex justify-center flex-col p-5">
+        <div className="flex flex-col items-center">
           <p className="text-center text-lg mb-2">Sign Up to TaskMaster</p>
-          <p>
-            <img
-              className="px-8 h-40"
-              src={newUser.image}
-              alt={`${newUser.displayName}'s profile`}
-            ></img>
-          </p>
-          <form onSubmit={handleSubmit} className="flex flex-col">
-            <label className="my-2">
+          <img
+            className="h-40 w-40"
+            src={newUser.image}
+            alt={`${newUser.displayName}'s profile`}
+          ></img>
+          <form onSubmit={handleSubmit} className="flex flex-col items-center">
+            <label className="my-2 ml-4">
               Name:
               <input
                 onChange={handleChange}
@@ -72,16 +77,16 @@ export default function UserForm() {
                 name="displayName"
                 placeholder={user?.name}
                 value={newUser.displayName}
-                className="text-center my-2 mt-5"
+                className="text-center my-2 mt-5 border-2 border-red-700 rounded-md mx-4"
                 required
               ></input>
             </label>
-            <label className="my-2">
-              <b>Favourite Colour:</b>
+            <label className="my-2 ml-4">
+              Favourite Colour:
               <select
                 id="favouriteColour"
                 name="favouriteColour"
-                className=""
+                className="px-3 border-2 border-red-700 rounded-md mx-4"
                 onChange={handleSelectChange}
               >
                 <option value="red">Red</option>
@@ -94,7 +99,7 @@ export default function UserForm() {
             </label>
             <button
               type="submit"
-              className="m-auto text-white w-60  focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mt-4 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+              className="text-white w-60 bg-red-700  font-medium rounded-lg text-sm px-5 py-2.5 mt-4 mb-2"
             >
               Create account
             </button>
