@@ -130,24 +130,37 @@ export default function TodoList() {
       <h2 className="sr-only" id="todo-header">
         Tasks List
       </h2>
+      <a
+        href="#filters-section"
+        className="sr-only focus:not-sr-only"
+        tabIndex={0}
+      >
+        Skip to filters
+      </a>
       <ul aria-labelledby="todo-header" id="todoList" className="todo-list">
         {allTasks && tasks.length > 0 ? (
           tasks.map((task) => {
             return (
               <li
                 key={task.id}
-                className={`group flex items-center justify-between px-4 py-3 text-xl border-b border-gray-400 ${
-                  task.completed ? 'text-gray-500 line-through' : ''
-                }`}
+                className={`group flex items-center justify-between px-4 py-3 text-xl border-b border-gray-400 `}
               >
                 <div className="flex">
                   <input
                     id={`${task.id}-checkbox`}
-                    className="opacity-0 absolute"
+                    className="appearance-none bg-color-none h-10 w-10 rounded-full absolute focus:ring-2 focus:ring-blue-500"
                     type="checkbox"
                     checked={Boolean(task.completed)}
                     onChange={(event) => handleStatusChange(task.id, event)}
-                    aria-label={`Mark task "${task.name}" as complete`}
+                    aria-label={`Press enter to change task "${task.name}"'s' status`}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        handleStatusChange(task.id, {
+                          target: { checked: !task.completed },
+                        } as any)
+                      }
+                    }}
+                    tabIndex={0}
                   />
                   <label
                     aria-label={`Mark task "${task.name}" as complete`}
@@ -162,29 +175,48 @@ export default function TodoList() {
                   {editTaskId === task.id ? (
                     <input
                       type="text"
-                      className="ml-4"
+                      className="ml-4 border focus:outline-none focus:border-blue-500 focus:shadow-md"
                       onChange={(event) => handleTaskChange(event)}
                       onBlur={() => submitTaskUpdate(task.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          submitTaskUpdate(task.id)
+                        }
+                      }}
                       value={taskForm}
-                      aria-label="edit-task-name"
+                      aria-label="Edit task name"
                     />
                   ) : (
                     <div
-                      className="ml-4"
-                      aria-label="Double click to edit task"
+                      className={`ml-4 ${
+                        task.completed ? 'text-gray-500 line-through' : ''
+                      }`}
+                      aria-label="Double click or press Enter to edit task"
                       onDoubleClick={() =>
                         handleDoubleClick(task.id, task.name)
                       }
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleDoubleClick(task.id, task.name)
+                        }
+                      }}
+                      tabIndex={0}
+                      role="button"
                     >
                       {task.name}
                     </div>
                   )}
                 </div>
                 <button
-                  className={`invisible w-10 h-10 text-3xl transition-colors duration-200 ease-out text-red-400 mr-3 ${
-                    task.completed ? ' ' : 'group-hover:visible'
-                  } `}
+                  className="opacity-0 w-10 h-10 text-3xl transition-colors duration-200 ease-out text-red-400 mr-3 focus:ring-2 focus:ring-red-500 group-hover:opacity-100 focus:opacity-100"
                   onClick={() => deleteTaskClick(task.id)}
+                  aria-label="Delete task"
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      deleteTaskClick(task.id)
+                    }
+                  }}
+                  tabIndex={0}
                 >
                   x
                 </button>
@@ -210,9 +242,9 @@ export default function TodoList() {
               <li className="inline">
                 <button
                   onClick={filterByAll}
-                  className={` p-2 mx-3 rounded-md hover:border hover:border-red-200 ${
+                  className={`p-2 mx-3 rounded-md hover:border hover:border-red-200 ${
                     !active && !completed ? 'border border-red-400' : ''
-                  } `}
+                  } focus:outline-none focus:text-blue-500`}
                 >
                   All
                 </button>
@@ -222,7 +254,7 @@ export default function TodoList() {
                   onClick={filterByActive}
                   className={`p-2 mx-3 rounded-md hover:border hover:border-red-200 ${
                     active ? 'border border-red-400' : ''
-                  } `}
+                  } focus:outline-none focus:text-blue-500`}
                 >
                   Active
                 </button>
@@ -231,8 +263,8 @@ export default function TodoList() {
                 <button
                   onClick={filterByCompleted}
                   className={`rounded-md p-2 mx-3 hover:border hover:border-red-200 ${
-                    completed ? ' border border-red-400' : ''
-                  } `}
+                    completed ? 'border border-red-400' : ''
+                  } focus:outline-none focus:text-blue-500`}
                 >
                   Completed
                 </button>
@@ -246,7 +278,7 @@ export default function TodoList() {
               allTasks.filter((task) => task.completed === 1).length === 0
                 ? 'invisible'
                 : ''
-            }`}
+            } focus:outline-none focus:text-blue-500`}
             onClick={handleClearCompleted}
           >
             Clear completed

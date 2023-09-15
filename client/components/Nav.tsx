@@ -28,6 +28,7 @@ export default function Nav() {
         <div className="mr-4">
           {!user ? (
             <button
+              tabIndex={0}
               className="text-lg text-white hover:text-xl focus:outline-none focus:ring-2"
               onClick={handleSignIn}
             >
@@ -36,6 +37,7 @@ export default function Nav() {
           ) : (
             <div className="flex gap-6">
               <button
+                tabIndex={0}
                 className="text-lg text-white hover:text-xl focus:outline-none focus:ring-2"
                 onClick={handleSignOut}
               >
