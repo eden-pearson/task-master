@@ -20,13 +20,11 @@ export default function Nav() {
   return (
     <>
       <nav className="flex items-center bg-red-700 h-20 justify-between">
-        <Link to="/">
-          <img
-            src="TaskMaster-white-logo.png"
-            alt="TaskMaster logo"
-            className="h-20 ml-4 hover:opacity-80 transition-opacity duration-200 ease-in-out"
-          ></img>
-        </Link>
+        <img
+          src="TaskMaster-white-logo.png"
+          alt="TaskMaster logo"
+          className="h-20 ml-4"
+        ></img>
         <div className="mr-4">
           {!user ? (
             <button

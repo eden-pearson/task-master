@@ -10,14 +10,17 @@ export default function Home() {
         <section>
           <div
             id="main"
-            className="m-0 p-0 font-sans text-gray-900 bg-gray-100 antialiased font-light min-w-[230px] max-w-[550px] mx-auto leading-[1.4em] text-[14px]"
+            className="font-sans text-gray-900 bg-zinc-50 antialiased font-light min-w-[230px] max-w-[550px] mx-auto leading-[1.4em] text-[14px]"
           >
-            <div className="bg-white my-[130px] mt-[40px] relative shadow-lg">
+            <div className="bg-white mt-20 mb-6 relative shadow-lg">
               <AddTodo />
               <TodoList />
               {/* <Filters /> */}
             </div>
           </div>
+          <p className="text-gray-400 text-center mb-14">
+            Double-click to edit a todo
+          </p>
         </section>
       </IfAuthenticated>
       <IfNotAuthenticated>

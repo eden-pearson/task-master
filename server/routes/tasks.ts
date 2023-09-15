@@ -29,8 +29,6 @@ router.post('/', checkJwt, async (req: JwtRequest, res) => {
   try {
     const auth0Id = req.auth?.sub as string
     const task = req.body.name
-    console.log(task)
-    console.log(auth0Id)
     const response = await createTask(task, auth0Id)
     res.json(response)
   } catch (err) {
