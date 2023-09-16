@@ -7,8 +7,6 @@ interface Props {
   handleClearCompleted: () => void
 }
 
-// React.FC<FilterProps>
-
 export default function Filter({
   currentFilter,
   allTasks,
@@ -20,7 +18,7 @@ export default function Filter({
       <span className="todo-count">
         <strong>
           {allTasks?.filter((task) => task.completed === 0).length || 0}
-        </strong>
+        </strong>{' '}
         items left
       </span>
       {allTasks && allTasks.length > 0 ? (
