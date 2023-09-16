@@ -222,7 +222,7 @@ export default function TodoList() {
             )
           })}
       </ul>
-      <div>
+      <div id="filters-section">
         <Filter
           currentFilter={currentFilter}
           allTasks={allTasks}
