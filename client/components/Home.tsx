@@ -15,11 +15,10 @@ export default function Home() {
             <div className="bg-white mt-20 mb-6 relative shadow-lg">
               <AddTodo />
               <TodoList />
-              {/* <Filters /> */}
             </div>
           </div>
           <p className="text-gray-400 text-center mb-14">
-            Double-click to edit a todo
+            Double-click to edit a task
           </p>
         </section>
       </IfAuthenticated>

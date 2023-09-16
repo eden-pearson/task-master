@@ -10,14 +10,27 @@ import { Task } from '../../models/tasks'
 import { useAuth0 } from '@auth0/auth0-react'
 import Filter from './Filter'
 
+interface FilterTypes {
+  all: undefined
+  active: undefined
+  completed: undefined
+}
+
+interface FilterFunctions {
+  all: (tasks: Task[]) => Task[]
+  active: (tasks: Task[]) => Task[]
+  completed: (tasks: Task[]) => Task[]
+}
+
 export default function TodoList() {
   const queryClient = useQueryClient()
   const { getAccessTokenSilently } = useAuth0()
   const [tasks, setTasks] = useState<Task[]>([])
   const [editTaskId, setEditTaskId] = useState<number | null>(null)
   const [taskForm, setTaskForm] = useState('')
-  const [active, setActive] = useState(false)
-  const [completed, setCompleted] = useState(false)
+  const [currentFilter, setCurrentFilter] = useState<
+    'active' | 'all' | 'completed'
+  >('all')
 
   const {
     data: allTasks,
@@ -27,6 +40,12 @@ export default function TodoList() {
     const token = await getAccessTokenSilently()
     return getTasksByAuthId(token)
   })
+
+  const filterFunctions: FilterFunctions = {
+    all: (tasks: Task[]) => tasks,
+    active: (tasks: Task[]) => tasks.filter((task) => task.completed === 0),
+    completed: (tasks: Task[]) => tasks.filter((task) => task.completed === 1),
+  }
 
   const taskComplete = useMutation(updateTaskStatus, {
     onSuccess: () => {
@@ -50,19 +69,19 @@ export default function TodoList() {
     }
   }, [allTasks])
 
+  if (error) {
+    return error instanceof Error ? (
+      <div role="alert">Something went wrong: {error.message}</div>
+    ) : (
+      <div role="alert">An unknown error has occurred</div>
+    )
+  }
+
   if (isLoading) {
     return (
       <div role="status" aria-live="polite">
         Tasks loading...
       </div>
-    )
-  }
-
-  if (error) {
-    error instanceof Error ? (
-      <div role="alert">Something went wrong: {error.message}</div>
-    ) : (
-      <div role="alert">An unknown error has occurred</div>
     )
   }
 
@@ -93,29 +112,11 @@ export default function TodoList() {
     setTaskForm('')
   }
 
-  function filterByAll() {
-    if (allTasks) {
-      setActive(false)
-      setCompleted(false)
-      setTasks(allTasks)
-    }
+  function changeFilter(filter: keyof FilterTypes) {
+    setCurrentFilter(filter)
+    setTasks(filterFunctions[filter](allTasks || []))
   }
 
-  function filterByActive() {
-    if (allTasks) {
-      setActive(true)
-      setCompleted(false)
-      setTasks(allTasks.filter((task) => task.completed === 0))
-    }
-  }
-
-  function filterByCompleted() {
-    if (allTasks) {
-      setActive(false)
-      setCompleted(true)
-      setTasks(allTasks.filter((task) => task.completed === 1))
-    }
-  }
   function handleClearCompleted() {
     for (const task of tasks.filter((task) => task.completed === 1)) {
       removeTask.mutate(task.id)
@@ -223,12 +224,9 @@ export default function TodoList() {
       </ul>
       <div>
         <Filter
-          active={active}
-          completed={completed}
+          currentFilter={currentFilter}
           allTasks={allTasks}
-          filterByAll={filterByAll}
-          filterByActive={filterByActive}
-          filterByCompleted={filterByCompleted}
+          changeFilter={changeFilter}
           handleClearCompleted={handleClearCompleted}
         />
       </div>

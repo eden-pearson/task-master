@@ -1,40 +1,35 @@
-import React from 'react'
 import { Task } from '../../models/tasks'
 
-interface FiltersProps {
-  active: boolean
-  completed: boolean
+interface Props {
+  currentFilter: 'active' | 'all' | 'completed'
   allTasks: Task[] | undefined
-  filterByAll: () => void
-  filterByActive: () => void
-  filterByCompleted: () => void
+  changeFilter: (filter: 'active' | 'all' | 'completed') => void
   handleClearCompleted: () => void
 }
 
-const Filters: React.FC<FiltersProps> = ({
-  active,
-  completed,
+// React.FC<FilterProps>
+
+export default function Filter({
+  currentFilter,
   allTasks,
-  filterByAll,
-  filterByActive,
-  filterByCompleted,
+  changeFilter,
   handleClearCompleted,
-}) => {
+}: Props) {
   return (
     <div className="flex justify-between items-center p-4">
       <span className="todo-count">
         <strong>
           {allTasks?.filter((task) => task.completed === 0).length || 0}
-        </strong>{' '}
+        </strong>
         items left
       </span>
       {allTasks && allTasks.length > 0 ? (
         <ul className="m-0 p-0 list-none">
           <li className="inline">
             <button
-              onClick={filterByAll}
+              onClick={() => changeFilter('all')}
               className={`p-2 mx-3 rounded-md hover:border hover:border-red-200 ${
-                !active && !completed ? 'border border-red-400' : ''
+                currentFilter === 'all' ? 'border border-red-400' : ''
               } `}
             >
               All
@@ -42,9 +37,9 @@ const Filters: React.FC<FiltersProps> = ({
           </li>
           <li className="inline">
             <button
-              onClick={filterByActive}
+              onClick={() => changeFilter('active')}
               className={`p-2 mx-3 rounded-md hover:border hover:border-red-200 ${
-                active ? 'border border-red-400' : ''
+                currentFilter === 'active' ? 'border border-red-400' : ''
               }`}
             >
               Active
@@ -52,9 +47,9 @@ const Filters: React.FC<FiltersProps> = ({
           </li>
           <li className="inline">
             <button
-              onClick={filterByCompleted}
+              onClick={() => changeFilter('completed')}
               className={`rounded-md p-2 mx-3 hover:border hover:border-red-200 ${
-                completed ? 'border border-red-400' : ''
+                currentFilter === 'completed' ? 'border border-red-400' : ''
               } `}
             >
               Completed
@@ -77,5 +72,3 @@ const Filters: React.FC<FiltersProps> = ({
     </div>
   )
 }
-
-export default Filters
