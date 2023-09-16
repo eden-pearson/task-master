@@ -148,7 +148,7 @@ export default function TodoList() {
                 <div className="flex">
                   <input
                     id={`${task.id}-checkbox`}
-                    className="appearance-none bg-color-none h-10 w-10 rounded-full absolute focus:ring-2 focus:ring-blue-500"
+                    className={`appearance-none bg-color-none h-10 w-10 rounded-full absolute`}
                     type="checkbox"
                     checked={Boolean(task.completed)}
                     onChange={(event) => handleStatusChange(task.id, event)}
@@ -175,7 +175,7 @@ export default function TodoList() {
                   {editTaskId === task.id ? (
                     <input
                       type="text"
-                      className="ml-4 border focus:outline-none focus:border-blue-500 focus:shadow-md"
+                      className="ml-4 border focus:shadow-md"
                       onChange={(event) => handleTaskChange(event)}
                       onBlur={() => submitTaskUpdate(task.id)}
                       onKeyDown={(e) => {
@@ -208,7 +208,7 @@ export default function TodoList() {
                   )}
                 </div>
                 <button
-                  className="opacity-0 w-10 h-10 text-3xl transition-colors duration-200 ease-out text-red-400 mr-3 focus:ring-2 focus:ring-red-500 group-hover:opacity-100 focus:opacity-100"
+                  className="opacity-0 w-10 h-10 text-3xl transition-colors duration-200 ease-out text-red-400 mr-3 group-hover:opacity-100 focus:opacity-100"
                   onClick={() => deleteTaskClick(task.id)}
                   aria-label="Delete task"
                   onKeyDown={(event) => {
@@ -237,14 +237,14 @@ export default function TodoList() {
             </strong>{' '}
             items left
           </span>
-          {allTasks && allTasks.length > 1 ? (
+          {allTasks && allTasks.length > 0 ? (
             <ul className="m-0 p-0 list-none">
               <li className="inline">
                 <button
                   onClick={filterByAll}
                   className={`p-2 mx-3 rounded-md hover:border hover:border-red-200 ${
                     !active && !completed ? 'border border-red-400' : ''
-                  } focus:outline-none focus:text-blue-500`}
+                  } `}
                 >
                   All
                 </button>
@@ -254,7 +254,7 @@ export default function TodoList() {
                   onClick={filterByActive}
                   className={`p-2 mx-3 rounded-md hover:border hover:border-red-200 ${
                     active ? 'border border-red-400' : ''
-                  } focus:outline-none focus:text-blue-500`}
+                  }`}
                 >
                   Active
                 </button>
@@ -264,7 +264,7 @@ export default function TodoList() {
                   onClick={filterByCompleted}
                   className={`rounded-md p-2 mx-3 hover:border hover:border-red-200 ${
                     completed ? 'border border-red-400' : ''
-                  } focus:outline-none focus:text-blue-500`}
+                  } `}
                 >
                   Completed
                 </button>
@@ -278,7 +278,7 @@ export default function TodoList() {
               allTasks.filter((task) => task.completed === 1).length === 0
                 ? 'invisible'
                 : ''
-            } focus:outline-none focus:text-blue-500`}
+            }`}
             onClick={handleClearCompleted}
           >
             Clear completed
