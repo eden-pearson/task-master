@@ -10,11 +10,14 @@ export default function Nav() {
   return (
     <>
       <nav className="flex items-center bg-red-700 h-20 justify-between">
-        <img
-          src="images/TaskMaster-white-logo.png"
-          alt="TaskMaster logo"
-          className="h-20 ml-4"
-        ></img>
+        <h1>
+          {' '}
+          <img
+            src="images/TaskMaster-white-logo.png"
+            alt="TaskMaster logo"
+            className="h-20 ml-4"
+          ></img>
+        </h1>
         <div className="mr-4">
           {user ? (
             <div className="flex gap-6">

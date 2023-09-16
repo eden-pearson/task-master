@@ -22,7 +22,7 @@ export default function Home() {
               <TodoList />
             </div>
           </div>
-          <p className="text-gray-400 text-center mb-14">
+          <p className="text-gray-500 text-center mb-14">
             Double-click to edit a task
           </p>
         </section>
