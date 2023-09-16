@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 import { Task } from '../../models/tasks'
 import { useAuth0 } from '@auth0/auth0-react'
 import Filter from './Filter'
+import ToDoItem from './ToDoItem'
 
 interface FilterTypes {
   all: undefined
@@ -22,7 +23,7 @@ interface FilterFunctions {
   completed: (tasks: Task[]) => Task[]
 }
 
-export default function TodoList() {
+export default function ToDoList() {
   const queryClient = useQueryClient()
   const { getAccessTokenSilently } = useAuth0()
   const [tasks, setTasks] = useState<Task[]>([])
@@ -93,7 +94,7 @@ export default function TodoList() {
     taskComplete.mutate({ id: taskId, completed: isChecked })
   }
 
-  function deleteTaskClick(taskId: number) {
+  function handleDeleteClick(taskId: number) {
     removeTask.mutate(taskId)
   }
 
@@ -140,85 +141,17 @@ export default function TodoList() {
           tasks.length > 0 &&
           tasks.map((task) => {
             return (
-              <li
+              <ToDoItem
                 key={task.id}
-                className={`group flex items-center justify-between px-4 py-3 text-xl border-b border-gray-400 `}
-              >
-                <div className="flex">
-                  <input
-                    id={`${task.id}-checkbox`}
-                    className={`appearance-none bg-color-none h-10 w-10 rounded-full absolute`}
-                    type="checkbox"
-                    checked={Boolean(task.completed)}
-                    onChange={(event) => handleStatusChange(task.id, event)}
-                    aria-label={
-                      task.completed
-                        ? `Mark "${task.name}" as incomplete`
-                        : `Mark "${task.name}" as complete`
-                    }
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter') {
-                        event.currentTarget.click()
-                      }
-                    }}
-                    tabIndex={0}
-                  />
-                  <label
-                    aria-label={`Mark task "${task.name}" as complete`}
-                    htmlFor={`${task.id}-checkbox`}
-                    className={`w-10 h-10 bg-no-repeat bg-center cursor-pointer ${
-                      task.completed ? 'checked' : 'unchecked'
-                    }`}
-                  />
-                  {editTaskId === task.id ? (
-                    <input
-                      type="text"
-                      className="ml-4 border focus:shadow-md"
-                      onChange={(event) => handleTaskChange(event)}
-                      onBlur={() => submitTaskUpdate(task.id)}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter') {
-                          submitTaskUpdate(task.id)
-                        }
-                      }}
-                      value={taskForm}
-                      aria-label={`Edit task "${task.name}"`}
-                    />
-                  ) : (
-                    <div
-                      className={`ml-4 ${
-                        task.completed ? 'text-gray-500 line-through' : ''
-                      }`}
-                      aria-label="Edit task name"
-                      onDoubleClick={() =>
-                        handleDoubleClick(task.id, task.name)
-                      }
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter') {
-                          handleDoubleClick(task.id, task.name)
-                        }
-                      }}
-                      tabIndex={0}
-                      role="button"
-                    >
-                      {task.name}
-                    </div>
-                  )}
-                </div>
-                <button
-                  className="opacity-0 w-10 h-10 text-3xl transition-colors duration-200 ease-out text-red-400 mr-3 group-hover:opacity-100 focus:opacity-100"
-                  onClick={() => deleteTaskClick(task.id)}
-                  aria-label={`Delete task "${task.name}"`}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      deleteTaskClick(task.id)
-                    }
-                  }}
-                  tabIndex={0}
-                >
-                  x
-                </button>
-              </li>
+                task={task}
+                handleStatusChange={handleStatusChange}
+                deleteTaskClick={handleDeleteClick}
+                handleDoubleClick={handleDoubleClick}
+                taskForm={taskForm}
+                handleTaskChange={handleTaskChange}
+                editTaskId={editTaskId}
+                submitTaskUpdate={submitTaskUpdate}
+              />
             )
           })}
       </ul>

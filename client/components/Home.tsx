@@ -1,7 +1,7 @@
 import { useAuth0 } from '@auth0/auth0-react'
 import { IfAuthenticated, IfNotAuthenticated } from './Authenticated'
 import AddTodo from './AddTodo.tsx'
-import TodoList from './TodoList.tsx'
+import ToDoList from './TodoList.tsx'
 
 export default function Home() {
   const { loginWithRedirect } = useAuth0()
@@ -19,7 +19,7 @@ export default function Home() {
           >
             <div className="bg-white mt-20 mb-6 relative shadow-lg">
               <AddTodo />
-              <TodoList />
+              <ToDoList />
             </div>
           </div>
           <p className="text-gray-500 text-center mb-14">
