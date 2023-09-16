@@ -3,8 +3,7 @@ export function up(knex) {
     table.increments('id').primary()
     table.string('name').notNullable()
     table.boolean('completed').notNullable().defaultTo(false)
-    table.timestamps(true, true)
-    table.string('auth0_id').references('users.auth0_id')
+    table.string('auth0_id').references('users.auth0_id').onDelete('CASCADE')
   })
 }
 

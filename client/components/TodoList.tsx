@@ -8,21 +8,29 @@ import {
 import { useEffect, useState } from 'react'
 import { Task } from '../../models/tasks'
 import { useAuth0 } from '@auth0/auth0-react'
-// import Filters from './Filters'
+import Filter from './Filter'
+
+interface FilterTypes {
+  all: undefined
+  active: undefined
+  completed: undefined
+}
+
+interface FilterFunctions {
+  all: (tasks: Task[]) => Task[]
+  active: (tasks: Task[]) => Task[]
+  completed: (tasks: Task[]) => Task[]
+}
 
 export default function TodoList() {
-  // const [activeFilter, setActiveFilter] = useState<string>('all')
-  // function handleFilterChange(newFilter: string) {
-  //   setActiveFilter(newFilter)
-  // }
-
   const queryClient = useQueryClient()
+  const { getAccessTokenSilently } = useAuth0()
   const [tasks, setTasks] = useState<Task[]>([])
   const [editTaskId, setEditTaskId] = useState<number | null>(null)
   const [taskForm, setTaskForm] = useState('')
-  const { getAccessTokenSilently } = useAuth0()
-  const [active, setActive] = useState(false)
-  const [completed, setCompleted] = useState(false)
+  const [currentFilter, setCurrentFilter] = useState<
+    'active' | 'all' | 'completed'
+  >('all')
 
   const {
     data: allTasks,
@@ -32,6 +40,12 @@ export default function TodoList() {
     const token = await getAccessTokenSilently()
     return getTasksByAuthId(token)
   })
+
+  const filterFunctions: FilterFunctions = {
+    all: (tasks: Task[]) => tasks,
+    active: (tasks: Task[]) => tasks.filter((task) => task.completed === 0),
+    completed: (tasks: Task[]) => tasks.filter((task) => task.completed === 1),
+  }
 
   const taskComplete = useMutation(updateTaskStatus, {
     onSuccess: () => {
@@ -55,18 +69,20 @@ export default function TodoList() {
     }
   }, [allTasks])
 
+  if (error) {
+    return error instanceof Error ? (
+      <div role="alert">Something went wrong: {error.message}</div>
+    ) : (
+      <div role="alert">An unknown error has occurred</div>
+    )
+  }
+
   if (isLoading) {
     return (
       <div role="status" aria-live="polite">
         Tasks loading...
       </div>
     )
-  }
-
-  if (error instanceof Error) {
-    return <div role="alert">Something went wrong: {error.message}</div>
-  } else if (error) {
-    return <div role="alert">An unknown error has occurred</div>
   }
 
   function handleStatusChange(
@@ -96,29 +112,11 @@ export default function TodoList() {
     setTaskForm('')
   }
 
-  function filterByAll() {
-    if (allTasks) {
-      setActive(false)
-      setCompleted(false)
-      setTasks(allTasks)
-    }
+  function changeFilter(filter: keyof FilterTypes) {
+    setCurrentFilter(filter)
+    setTasks(filterFunctions[filter](allTasks || []))
   }
 
-  function filterByActive() {
-    if (allTasks) {
-      setActive(true)
-      setCompleted(false)
-      setTasks(allTasks.filter((task) => task.completed === 0))
-    }
-  }
-
-  function filterByCompleted() {
-    if (allTasks) {
-      setActive(false)
-      setCompleted(true)
-      setTasks(allTasks.filter((task) => task.completed === 1))
-    }
-  }
   function handleClearCompleted() {
     for (const task of tasks.filter((task) => task.completed === 1)) {
       removeTask.mutate(task.id)
@@ -138,7 +136,8 @@ export default function TodoList() {
         Skip to filters
       </a>
       <ul aria-labelledby="todo-header" id="todoList" className="todo-list">
-        {allTasks && tasks.length > 0 ? (
+        {allTasks &&
+          tasks.length > 0 &&
           tasks.map((task) => {
             return (
               <li
@@ -148,16 +147,18 @@ export default function TodoList() {
                 <div className="flex">
                   <input
                     id={`${task.id}-checkbox`}
-                    className="appearance-none bg-color-none h-10 w-10 rounded-full absolute focus:ring-2 focus:ring-blue-500"
+                    className={`appearance-none bg-color-none h-10 w-10 rounded-full absolute`}
                     type="checkbox"
                     checked={Boolean(task.completed)}
                     onChange={(event) => handleStatusChange(task.id, event)}
-                    aria-label={`Press enter to change task "${task.name}"'s' status`}
+                    aria-label={
+                      task.completed
+                        ? `Mark "${task.name}" as incomplete`
+                        : `Mark "${task.name}" as complete`
+                    }
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
-                        handleStatusChange(task.id, {
-                          target: { checked: !task.completed },
-                        } as any)
+                        event.currentTarget.click()
                       }
                     }}
                     tabIndex={0}
@@ -165,38 +166,35 @@ export default function TodoList() {
                   <label
                     aria-label={`Mark task "${task.name}" as complete`}
                     htmlFor={`${task.id}-checkbox`}
-                    className="w-10 h-10 bg-no-repeat bg-center cursor-pointer"
-                    style={
-                      task.completed
-                        ? { backgroundImage: `url('/images/checked.svg')` }
-                        : { backgroundImage: `url('/images/unchecked.svg')` }
-                    }
+                    className={`w-10 h-10 bg-no-repeat bg-center cursor-pointer ${
+                      task.completed ? 'checked' : 'unchecked'
+                    }`}
                   />
                   {editTaskId === task.id ? (
                     <input
                       type="text"
-                      className="ml-4 border focus:outline-none focus:border-blue-500 focus:shadow-md"
+                      className="ml-4 border focus:shadow-md"
                       onChange={(event) => handleTaskChange(event)}
                       onBlur={() => submitTaskUpdate(task.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
                           submitTaskUpdate(task.id)
                         }
                       }}
                       value={taskForm}
-                      aria-label="Edit task name"
+                      aria-label={`Edit task "${task.name}"`}
                     />
                   ) : (
                     <div
                       className={`ml-4 ${
                         task.completed ? 'text-gray-500 line-through' : ''
                       }`}
-                      aria-label="Double click or press Enter to edit task"
+                      aria-label="Edit task name"
                       onDoubleClick={() =>
                         handleDoubleClick(task.id, task.name)
                       }
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
                           handleDoubleClick(task.id, task.name)
                         }
                       }}
@@ -208,9 +206,9 @@ export default function TodoList() {
                   )}
                 </div>
                 <button
-                  className="opacity-0 w-10 h-10 text-3xl transition-colors duration-200 ease-out text-red-400 mr-3 focus:ring-2 focus:ring-red-500 group-hover:opacity-100 focus:opacity-100"
+                  className="opacity-0 w-10 h-10 text-3xl transition-colors duration-200 ease-out text-red-400 mr-3 group-hover:opacity-100 focus:opacity-100"
                   onClick={() => deleteTaskClick(task.id)}
-                  aria-label="Delete task"
+                  aria-label={`Delete task "${task.name}"`}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter') {
                       deleteTaskClick(task.id)
@@ -222,68 +220,15 @@ export default function TodoList() {
                 </button>
               </li>
             )
-          })
-        ) : (
-          <li>
-            <p>No tasks found</p>
-          </li>
-        )}
+          })}
       </ul>
       <div>
-        <div className="flex justify-between items-center p-4">
-          <span className="todo-count">
-            <strong>
-              {tasks.filter((task) => task.completed === 0).length || 0}
-            </strong>{' '}
-            items left
-          </span>
-          {allTasks && allTasks.length > 1 ? (
-            <ul className="m-0 p-0 list-none">
-              <li className="inline">
-                <button
-                  onClick={filterByAll}
-                  className={`p-2 mx-3 rounded-md hover:border hover:border-red-200 ${
-                    !active && !completed ? 'border border-red-400' : ''
-                  } focus:outline-none focus:text-blue-500`}
-                >
-                  All
-                </button>
-              </li>
-              <li className="inline">
-                <button
-                  onClick={filterByActive}
-                  className={`p-2 mx-3 rounded-md hover:border hover:border-red-200 ${
-                    active ? 'border border-red-400' : ''
-                  } focus:outline-none focus:text-blue-500`}
-                >
-                  Active
-                </button>
-              </li>
-              <li className="inline">
-                <button
-                  onClick={filterByCompleted}
-                  className={`rounded-md p-2 mx-3 hover:border hover:border-red-200 ${
-                    completed ? 'border border-red-400' : ''
-                  } focus:outline-none focus:text-blue-500`}
-                >
-                  Completed
-                </button>
-              </li>
-            </ul>
-          ) : (
-            <div></div>
-          )}
-          <button
-            className={`float-right relative align-middle hover:underline no-underline cursor-pointer ${
-              allTasks.filter((task) => task.completed === 1).length === 0
-                ? 'invisible'
-                : ''
-            } focus:outline-none focus:text-blue-500`}
-            onClick={handleClearCompleted}
-          >
-            Clear completed
-          </button>
-        </div>
+        <Filter
+          currentFilter={currentFilter}
+          allTasks={allTasks}
+          changeFilter={changeFilter}
+          handleClearCompleted={handleClearCompleted}
+        />
       </div>
     </div>
   )

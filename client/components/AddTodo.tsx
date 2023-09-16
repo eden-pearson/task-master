@@ -34,9 +34,7 @@ function AddTodo() {
         onChange={handleChange}
         className="w-full text-2xl font-inherit text-inherit leading-[1.4em] p-4 border border-gray-400 shadow-inner"
         type="text"
-        // className="new-todo"
         placeholder="What needs to be done?"
-        autoFocus={true}
         value={task}
       />
     </form>
