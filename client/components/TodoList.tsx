@@ -8,14 +8,9 @@ import {
 import { useEffect, useState } from 'react'
 import { Task } from '../../models/tasks'
 import { useAuth0 } from '@auth0/auth0-react'
-// import Filters from './Filters'
+import Filter from './Filter'
 
 export default function TodoList() {
-  // const [activeFilter, setActiveFilter] = useState<string>('all')
-  // function handleFilterChange(newFilter: string) {
-  //   setActiveFilter(newFilter)
-  // }
-
   const queryClient = useQueryClient()
   const [tasks, setTasks] = useState<Task[]>([])
   const [editTaskId, setEditTaskId] = useState<number | null>(null)
@@ -63,10 +58,12 @@ export default function TodoList() {
     )
   }
 
-  if (error instanceof Error) {
-    return <div role="alert">Something went wrong: {error.message}</div>
-  } else if (error) {
-    return <div role="alert">An unknown error has occurred</div>
+  if (error) {
+    error instanceof Error ? (
+      <div role="alert">Something went wrong: {error.message}</div>
+    ) : (
+      <div role="alert">An unknown error has occurred</div>
+    )
   }
 
   function handleStatusChange(
@@ -138,7 +135,8 @@ export default function TodoList() {
         Skip to filters
       </a>
       <ul aria-labelledby="todo-header" id="todoList" className="todo-list">
-        {allTasks && tasks.length > 0 ? (
+        {allTasks &&
+          tasks.length > 0 &&
           tasks.map((task) => {
             return (
               <li
@@ -222,68 +220,18 @@ export default function TodoList() {
                 </button>
               </li>
             )
-          })
-        ) : (
-          <li>
-            <p>No tasks found</p>
-          </li>
-        )}
+          })}
       </ul>
       <div>
-        <div className="flex justify-between items-center p-4">
-          <span className="todo-count">
-            <strong>
-              {tasks.filter((task) => task.completed === 0).length || 0}
-            </strong>{' '}
-            items left
-          </span>
-          {allTasks && allTasks.length > 0 ? (
-            <ul className="m-0 p-0 list-none">
-              <li className="inline">
-                <button
-                  onClick={filterByAll}
-                  className={`p-2 mx-3 rounded-md hover:border hover:border-red-200 ${
-                    !active && !completed ? 'border border-red-400' : ''
-                  } `}
-                >
-                  All
-                </button>
-              </li>
-              <li className="inline">
-                <button
-                  onClick={filterByActive}
-                  className={`p-2 mx-3 rounded-md hover:border hover:border-red-200 ${
-                    active ? 'border border-red-400' : ''
-                  }`}
-                >
-                  Active
-                </button>
-              </li>
-              <li className="inline">
-                <button
-                  onClick={filterByCompleted}
-                  className={`rounded-md p-2 mx-3 hover:border hover:border-red-200 ${
-                    completed ? 'border border-red-400' : ''
-                  } `}
-                >
-                  Completed
-                </button>
-              </li>
-            </ul>
-          ) : (
-            <div></div>
-          )}
-          <button
-            className={`float-right relative align-middle hover:underline no-underline cursor-pointer ${
-              allTasks.filter((task) => task.completed === 1).length === 0
-                ? 'invisible'
-                : ''
-            }`}
-            onClick={handleClearCompleted}
-          >
-            Clear completed
-          </button>
-        </div>
+        <Filter
+          active={active}
+          completed={completed}
+          allTasks={allTasks}
+          filterByAll={filterByAll}
+          filterByActive={filterByActive}
+          filterByCompleted={filterByCompleted}
+          handleClearCompleted={handleClearCompleted}
+        />
       </div>
     </div>
   )
