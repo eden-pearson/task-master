@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.checked {
+  background-image: url('/images/checked.svg');
+}
+
+.unchecked {
+  background-image: url('/images/unchecked.svg');
+}

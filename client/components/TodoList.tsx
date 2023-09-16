@@ -12,10 +12,10 @@ import Filter from './Filter'
 
 export default function TodoList() {
   const queryClient = useQueryClient()
+  const { getAccessTokenSilently } = useAuth0()
   const [tasks, setTasks] = useState<Task[]>([])
   const [editTaskId, setEditTaskId] = useState<number | null>(null)
   const [taskForm, setTaskForm] = useState('')
-  const { getAccessTokenSilently } = useAuth0()
   const [active, setActive] = useState(false)
   const [completed, setCompleted] = useState(false)
 
@@ -150,12 +150,14 @@ export default function TodoList() {
                     type="checkbox"
                     checked={Boolean(task.completed)}
                     onChange={(event) => handleStatusChange(task.id, event)}
-                    aria-label={`Press enter to change task "${task.name}"'s' status`}
+                    aria-label={
+                      task.completed
+                        ? `Mark "${task.name}" as incomplete`
+                        : `Mark "${task.name}" as complete`
+                    }
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
-                        handleStatusChange(task.id, {
-                          target: { checked: !task.completed },
-                        } as any)
+                        event.currentTarget.click()
                       }
                     }}
                     tabIndex={0}
@@ -163,12 +165,9 @@ export default function TodoList() {
                   <label
                     aria-label={`Mark task "${task.name}" as complete`}
                     htmlFor={`${task.id}-checkbox`}
-                    className="w-10 h-10 bg-no-repeat bg-center cursor-pointer"
-                    style={
-                      task.completed
-                        ? { backgroundImage: `url('/images/checked.svg')` }
-                        : { backgroundImage: `url('/images/unchecked.svg')` }
-                    }
+                    className={`w-10 h-10 bg-no-repeat bg-center cursor-pointer ${
+                      task.completed ? 'checked' : 'unchecked'
+                    }`}
                   />
                   {editTaskId === task.id ? (
                     <input
@@ -176,25 +175,25 @@ export default function TodoList() {
                       className="ml-4 border focus:shadow-md"
                       onChange={(event) => handleTaskChange(event)}
                       onBlur={() => submitTaskUpdate(task.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
                           submitTaskUpdate(task.id)
                         }
                       }}
                       value={taskForm}
-                      aria-label="Edit task name"
+                      aria-label={`Edit task "${task.name}"`}
                     />
                   ) : (
                     <div
                       className={`ml-4 ${
                         task.completed ? 'text-gray-500 line-through' : ''
                       }`}
-                      aria-label="Double click or press Enter to edit task"
+                      aria-label="Edit task name"
                       onDoubleClick={() =>
                         handleDoubleClick(task.id, task.name)
                       }
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
                           handleDoubleClick(task.id, task.name)
                         }
                       }}
@@ -208,7 +207,7 @@ export default function TodoList() {
                 <button
                   className="opacity-0 w-10 h-10 text-3xl transition-colors duration-200 ease-out text-red-400 mr-3 group-hover:opacity-100 focus:opacity-100"
                   onClick={() => deleteTaskClick(task.id)}
-                  aria-label="Delete task"
+                  aria-label={`Delete task "${task.name}"`}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter') {
                       deleteTaskClick(task.id)
