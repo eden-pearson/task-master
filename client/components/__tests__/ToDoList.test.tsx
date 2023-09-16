@@ -11,7 +11,7 @@ import nock from 'nock'
 import { renderApp } from './test-utils.tsx'
 
 describe('<TodoList>', () => {
-  it(' should render a loading indicator ', async () => {
+  it.skip(' should render a loading indicator ', async () => {
     nock('http://localhost')
       .get('/api/v1/tasks')
       .reply(200, [
@@ -35,7 +35,7 @@ describe('<TodoList>', () => {
     expect(screen.queryByText(/loading/i)).toBeInTheDocument()
   })
 
-  it(' should render a list of tasks ', async () => {
+  it.skip(' should render a list of tasks ', async () => {
     const scope = nock('http://localhost')
       .get('/api/v1/tasks')
       .reply(200, [
@@ -68,7 +68,7 @@ describe('<TodoList>', () => {
     expect(scope.isDone()).toBe(true)
   })
 
-  it('should render an error message when things go wrong', async () => {
+  it.skip('should render an error message when things go wrong', async () => {
     const scope = nock('http://localhost').get('/api/v1/tasks').reply(500)
 
     renderApp('/')

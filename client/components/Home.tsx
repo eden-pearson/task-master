@@ -2,7 +2,6 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { IfAuthenticated, IfNotAuthenticated } from './Authenticated'
 import AddTodo from './AddTodo.tsx'
 import TodoList from './TodoList.tsx'
-// import Filters from './Filters.tsx'
 
 export default function Home() {
   const { loginWithRedirect } = useAuth0()
