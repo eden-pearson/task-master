@@ -30,7 +30,7 @@
     ]
   },
   "devDependencies": {
-    "@auth0/auth0-react": "^1.12.0",
+    "@auth0/auth0-react": "^1.12.1",
     "@devacademy/eslint-config": "^1.9.1",
     "@tanstack/eslint-plugin-query": "^4.29.9",
     "@tanstack/react-query": "^4.29.12",
