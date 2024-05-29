@@ -6,13 +6,14 @@ import { useQuery } from '@tanstack/react-query'
 import { getTasksByAuthId } from '../apis/tasks.ts'
 
 export default function Home() {
+  const { getAccessTokenSilently } = useAuth0()
   const { loginWithRedirect } = useAuth0()
 
   const handleSignIn = () => {
     loginWithRedirect({ redirectUri: `${window.location.origin}/register` })
   }
 
-  const { data: tasks } = useQuery(['tasks'], async () => {
+  const { data: allTasks } = useQuery(['tasks'], async () => {
     const token = await getAccessTokenSilently()
     return getTasksByAuthId(token)
   })
@@ -31,9 +32,9 @@ export default function Home() {
             </div>
           </div>
           <p className="text-gray-500 text-center mb-14">
-            {!tasks
-              ? 'Press enter to add your first task'
-              : 'Double click to edit a task'}
+            {allTasks && allTasks.length > 0
+              ? 'Double-click to edit a task'
+              : 'Press enter to add your first task'}
           </p>
         </section>
       </IfAuthenticated>
@@ -52,7 +53,4 @@ export default function Home() {
       </IfNotAuthenticated>
     </>
   )
-}
-function getAccessTokenSilently() {
-  throw new Error('Function not implemented.')
 }
