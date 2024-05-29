@@ -2,6 +2,8 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { IfAuthenticated, IfNotAuthenticated } from './Authenticated'
 import AddTodo from './AddTodo.tsx'
 import ToDoList from './TodoList.tsx'
+import { useQuery } from '@tanstack/react-query'
+import { getTasksByAuthId } from '../apis/tasks.ts'
 
 export default function Home() {
   const { loginWithRedirect } = useAuth0()
@@ -9,6 +11,12 @@ export default function Home() {
   const handleSignIn = () => {
     loginWithRedirect({ redirectUri: `${window.location.origin}/register` })
   }
+
+  const { data: tasks } = useQuery(['tasks'], async () => {
+    const token = await getAccessTokenSilently()
+    return getTasksByAuthId(token)
+  })
+
   return (
     <>
       <IfAuthenticated>
@@ -23,7 +31,9 @@ export default function Home() {
             </div>
           </div>
           <p className="text-gray-500 text-center mb-14">
-            Double-click to edit a task
+            {!tasks
+              ? 'Press enter to add your first task'
+              : 'Double click to edit a task'}
           </p>
         </section>
       </IfAuthenticated>
@@ -42,4 +52,7 @@ export default function Home() {
       </IfNotAuthenticated>
     </>
   )
+}
+function getAccessTokenSilently() {
+  throw new Error('Function not implemented.')
 }
